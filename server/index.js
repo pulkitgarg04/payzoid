@@ -12,7 +12,7 @@ const app = express();
 
 console.log(process.env.FRONTEND_URL)
 app.use(cors({
-    origin: `${process.env.FRONTEND_URL}`,
+    origin: `${process.env.FRONTEND_URL || '*'}`,
     credentials: true
 }));
 
@@ -30,7 +30,7 @@ const startServer = async () => {
         });
     });
   } catch (error) {
-    console.log("Error while connecting to Mongo DB: ", error);
+    console.log("Error while connecting to Mongo DB: ", error.message);
   }
 };
 

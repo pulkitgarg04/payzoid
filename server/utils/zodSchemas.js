@@ -1,7 +1,6 @@
 import zod from 'zod';
 
 export const signUpSchema = zod.object({
-  username: zod.string(),
   email: zod.string().email().max(30),
   firstName: zod.string(),
   lastName: zod.string(),
@@ -9,7 +8,7 @@ export const signUpSchema = zod.object({
 });
 
 export const signinSchema = zod.object({
-  username: zod.string(),
+  email: zod.string().email(),
   password: zod.string(),
 });
 

@@ -4,7 +4,7 @@ import {
   signin,
   signup,
   updateUser,
-} from '../controllers/user.controllers.js';
+} from '../controllers/user.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();

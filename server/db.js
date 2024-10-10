@@ -15,20 +15,6 @@ const AccountSchema = mongoose.Schema({
 });
 
 const UserSchema = mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    minlength: 3,
-    maxlength: 30, 
-  },
-  password: {
-    type: String,
-    required: true,
-    minLength: 6,
-  },
   firstName: {
     type: String,
     required: true,
@@ -49,6 +35,13 @@ const UserSchema = mongoose.Schema({
     lowercase: true,
     maxLength: 50,
   },
+  password: {
+    type: String,
+    required: true,
+    minLength: 6,
+  },
+}, {
+  timestamps: true,
 });
 
 UserSchema.methods.createHash = async function (password) {
