@@ -12,7 +12,7 @@ function Home() {
                         Making Payments Easy, One Tap at a Time.
                     </h1>
                     <p className="my-4 font-medium text-center">
-                        YoPayment is a digital wallet that allows you to make payments, receive money, and manage your finances. It's fast, secure, and easy to use.
+                        PayZoid is a digital wallet that allows you to make payments, receive money, and manage your finances. It's fast, secure, and easy to use.
                     </p>
                     <div className="flex justify-center relative z-10">
                         <Link to={'/signup'}>

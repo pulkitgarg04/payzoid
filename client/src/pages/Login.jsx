@@ -27,7 +27,7 @@ function Login() {
       localStorage.setItem("authToken", token);
       navigate("/dashboard");
     } catch (err) {
-      setError("Invalid email or password");
+      setError("Invalid email or password: " + err);
     }
   };
 
@@ -114,7 +114,7 @@ function Login() {
         </form>
 
         <p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link to="/signup">
             <span className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
               Create account now
