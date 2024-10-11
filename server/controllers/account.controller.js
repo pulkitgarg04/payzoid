@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import { Account } from '../db.js';
+import { Account } from '../models/account.model.js';
+import { Transaction } from '../models/transactions.model.js';
 
 export const balance = async (req, res) => {
   try {
@@ -22,7 +23,6 @@ export const transfer = async (req, res) => {
     session.startTransaction();
     const { amount, to } = req.body;
 
-    // Validate input
     if (amount <= 0) {
       await session.abortTransaction();
       return res.status(400).json({
@@ -30,7 +30,6 @@ export const transfer = async (req, res) => {
       });
     }
 
-    // Fetch the accounts within the transaction
     const account = await Account.findOne({ userId: req.userId }).session(session);
 
     if (!account || account.balance < amount) {
@@ -49,7 +48,6 @@ export const transfer = async (req, res) => {
       });
     }
 
-    // Perform the transfer
     await Account.updateOne(
       { userId: req.userId },
       { $inc: { balance: -amount } }
@@ -60,7 +58,19 @@ export const transfer = async (req, res) => {
       { $inc: { balance: amount } }
     ).session(session);
 
-    // Commit the transaction
+    const transaction = new Transaction({
+      date: new Date(),
+      transactionId: mongoose.Types.ObjectId(),
+      name: account.firstName + `${account.lastName ? ' ' + account.lastName : ''}`,
+      email: account.email,
+      transaction: amount,
+      balance: account.balance - amount,
+      userId: req.userId,
+      recipientId: to,
+    });
+
+    await transaction.save({ session });
+
     await session.commitTransaction();
 
     const updatedAccount = await Account.findOne({ userId: req.userId });
@@ -75,5 +85,17 @@ export const transfer = async (req, res) => {
 
   } finally {
     session.endSession();
+  }
+};
+
+const getLatestTransactions = async (userId, limit = 10) => {
+  try {
+    const transactions = await Transaction.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+    return transactions;
+  } catch (error) {
+    throw new Error('Error fetching transactions: ' + error.message);
   }
 };

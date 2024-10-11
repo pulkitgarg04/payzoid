@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 function Header() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -20,9 +21,9 @@ function Header() {
             <div className="text-2xl font-bold font-Manrope">PAYZOID</div>
             <div className="flex items-center justify-around">
                 <ul className="mx-3 flex">
-                    <li className="mx-3">Home</li>
-                    <li className="mx-3">About</li>
-                    <li className="mx-3">Contact</li>
+                    <Link to="/"><li className="mx-3">Home</li></Link>
+                    <Link to="/"><li className="mx-3">About</li></Link>
+                    <Link to="/"><li className="mx-3">Contact</li></Link>
                 </ul>
 
                 <button

@@ -4,9 +4,9 @@ dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 
-import rootRouter from './routes/index.js';
+import userRouter from './routes/user.js';
+import accountRouter from './routes/account.js';
 
 const app = express();
 
@@ -16,7 +16,6 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,4 +39,5 @@ app.get('/', (req, res) => {
     res.send("Hello from PayZoid!");
 });
 
-app.use('/api/v1', rootRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/account', accountRouter);

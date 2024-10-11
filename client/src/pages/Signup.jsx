@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
 import axios from "axios";
+import { useUser } from '../context/UserContext';
 import Header from "../components/Header";
 
 function Signup() {
+  const { setUser } = useUser();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,7 +14,6 @@ function Signup() {
     password: ''
   });
   const [passwordShown, setPasswordShown] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = (e) => {
@@ -32,17 +34,23 @@ function Signup() {
       console.log(import.meta.env.VITE_BACKEND_URL);
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/signup`, formData);
 
-      if (response.status === 200) {
-        navigate('/login');
+      if (response.success) {
+        setUser(response.data.user);
+        toast.success(response.data.message);
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
+      const errorMessage = err.response?.data?.message || 'Something went wrong';
+      toast.error(errorMessage);
     }
   };
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
       <Header />
+      <Toaster />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-sm pt-5">
         <h2 className="mt-7 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white">
@@ -134,8 +142,6 @@ function Signup() {
               </div>
             </div>
           </div>
-
-          {error && <p className="text-red-500">{error}</p>}
 
           <div>
             <button

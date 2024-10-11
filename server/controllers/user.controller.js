@@ -1,4 +1,5 @@
-import { Account, User } from '../db.js';
+import { User } from '../models/user.model.js';
+import { Account } from '../models/account.model.js';
 import {
   signUpSchema,
   signinSchema,
@@ -9,43 +10,47 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res) => {
   try {
     const { email, firstName, lastName, password } = req.body;
+  
     const { success } = signUpSchema.safeParse(req.body);
     if (!success) {
-      return res.status(411).json({ message: 'Invalid Inputs' });
+      return res.status(400).json({ message: 'Invalid Inputs' });
     }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(411).json({ message: 'Email already taken' });
+      return res.status(409).json({ message: 'Email already taken' });
     }
+  
     const user = new User({
       email,
       firstName,
       lastName,
     });
-
+    
     const hashedPassword = await user.createHash(password);
     user.password = hashedPassword;
     await user.save();
-
+    
     const userId = user._id;
     const account = await Account.create({
       userId,
-      balance: 1 + Math.random() * 10000,
+      balance: Math.floor(Math.random() * 90000) + 10000,
     });
-
+    
     const token = jwt.sign({ userId }, process.env.JWT_SECRET);
     const userResponse = user.toObject();
-    delete userResponse.password;
-
+    
     userResponse.balance = account.balance;
+  
     res.status(200).json({
-      message: 'User created Successfully',
+      success: true,
+      message: 'Account created successfully',
       token,
       user: userResponse,
     });
 
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    return res.status(500).json({ message: 'Server Error' });
   }
 };
 
@@ -55,32 +60,66 @@ export const signin = async (req, res) => {
     const { success } = signinSchema.safeParse({ email, password });
   
     if (!success) {
-      return res.status(411).json({ message: 'Invalid Inputs' });
+      return res.status(400).json({ message: 'Invalid Inputs' });
     }
   
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: 'Invalid Credentials' });
+      return res.status(401).json({ message: 'Invalid Credentials' });
     }
-  
-    if (await user.validatePassword(password)) {
-      const userId = user._id;
-      const token = jwt.sign({ userId }, process.env.JWT_SECRET);
-      const account = await Account.findOne({ userId });
 
-      const userResponse = user.toObject();
-      delete userResponse.password;
-
-      userResponse.balance = account.balance;
-
-      return res.status(200).json({ token, user: userResponse });
-    } else {
-      return res.status(404).json({ message: 'Invalid Credentials' });
+    const isValidPassword = await user.validatePassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Invalid Credentials' });
     }
+
+    const userId = user._id;
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET);
+
+    const account = await Account.findOne({ userId });
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    userResponse.balance = account.balance;
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: userResponse
+    });
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    return res.status(500).json({ message: 'Server Error' }); 
   }
 };
+
+export const getUser = async (req, res) => {
+  try {
+    if (!req.token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const { userId } = jwt.decode(req.token);
+
+    const user = await User.findOne({ _id: userId });
+    const account = await Account.findOne({ userId: req.userId });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    const userResponse = user.toObject();
+    userResponse.balance = account.balance;
+
+    console.log(userResponse);
+
+    res.status(200).json({ user: userResponse });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server Error' });
+  }
+}
 
 export const updateUser = async (req, res) => {
   try {

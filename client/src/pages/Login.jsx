@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
+import { useUser } from '../context/UserContext';
 import Header from "../components/Header";
 import axios from "axios";
 
 function Login() {
+  const { setUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const togglePasswordVisibility = (e) => {
@@ -23,11 +25,15 @@ function Login() {
         password,
       });
 
-      const token = response.data.token;
-      localStorage.setItem("authToken", token);
-      navigate("/dashboard");
+      if (response.success || response.data.success) {
+        setUser(response.data.user);
+        toast.success(response.data.message);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      }
     } catch (err) {
-      setError("Invalid email or password: " + err);
+      toast.error(err.response?.data?.message || "Invalid email or password");
     }
   };
 
@@ -43,9 +49,6 @@ function Login() {
 
       <div className="mt-7 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleLogin} className="space-y-6">
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">
@@ -122,6 +125,8 @@ function Login() {
           </Link>
         </p>
       </div>
+
+      <Toaster />
     </div>
   );
 }
