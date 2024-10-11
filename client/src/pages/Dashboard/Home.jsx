@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import Appbar from '../../components/Appbar';
 import Balance from '../../components/Balance';
-import Transactions from '../../components/TransactionTable';
+import Users from '../../components/Users';
 import { useUser } from '../../context/UserContext';
 
 const Dashboard = () => {
@@ -20,9 +20,10 @@ const Dashboard = () => {
         <Appbar name={name} />
         <div>
           <Balance balance={balance} />
-
-          <h2 className='m-8 text-2xl font-bold'>Recent Transactions</h2>
-          <Transactions />
+        </div>
+        <div className='my-10'>
+          <h2 className='m-8 text-2xl font-bold'>People</h2>
+          <Users />
         </div>
       </div>
     </div>

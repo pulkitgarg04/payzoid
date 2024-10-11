@@ -34,7 +34,7 @@ function Signup() {
       console.log(import.meta.env.VITE_BACKEND_URL);
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/signup`, formData);
 
-      if (response.success) {
+      if (response.data.success || response.status == 200) {
         setUser(response.data.user);
         toast.success(response.data.message);
         setTimeout(() => {

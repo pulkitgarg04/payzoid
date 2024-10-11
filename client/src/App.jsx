@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard/Home";
 import Profile from "./pages/Dashboard/Profile";
-import SendMoney from "./pages/SendMoney";
+import SendMoney from "./pages/Dashboard/SendMoney.jsx";
 import Transactions from "./pages/Transactions";
 import { UserProvider } from "./context/UserContext.jsx";
 
@@ -20,7 +20,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/profile" element={<Profile />} />
             <Route path="/transactions" element={<Transactions />} />
-            <Route path="/send-money" element={<SendMoney />} />
+            <Route path="/send" element={<SendMoney />} />
             <Route path="/logout" element={<SendMoney />} />
           </Routes>
         </BrowserRouter>

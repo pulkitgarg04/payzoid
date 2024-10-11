@@ -25,7 +25,7 @@ function Login() {
         password,
       });
 
-      if (response.success || response.data.success) {
+      if (response.data.success || response.status == 200) {
         setUser(response.data.user);
         toast.success(response.data.message);
         setTimeout(() => {

@@ -1,5 +1,6 @@
 import { User } from '../models/user.model.js';
 import { Account } from '../models/account.model.js';
+import { userLog } from '../models/userLog.model.js';
 import {
   signUpSchema,
   signinSchema,
@@ -41,7 +42,12 @@ export const signup = async (req, res) => {
     const userResponse = user.toObject();
     
     userResponse.balance = account.balance;
-  
+
+    await userLog.create({
+      userId,
+      action: 'signup',
+    });
+
     res.status(200).json({
       success: true,
       message: 'Account created successfully',
@@ -82,8 +88,14 @@ export const signin = async (req, res) => {
 
     userResponse.balance = account.balance;
 
+    await userLog.create({
+      userId,
+      action: 'login',
+    });
+
     return res.status(200).json({
       success: true,
+      message: 'Login Successful',
       token,
       user: userResponse
     });
@@ -166,7 +178,7 @@ export const filterUsers = async (req, res) => {
 
     res.json({
       user: users.map((user) => ({
-        username: user.username,
+        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         _id: user._id,
