@@ -8,11 +8,10 @@ export const authMiddleware = async (req, res, next) => {
       return res.status(404).json({ message: 'No Token found' });
     }
 
-    token = token.replace('Bearer ', '');
-    
+    token = token.split(' ')[1]; 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
     
+    req.userId = decoded.userId;
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Invalid Token', error });

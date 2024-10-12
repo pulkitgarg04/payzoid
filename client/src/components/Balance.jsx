@@ -1,6 +1,6 @@
 import CreditCard from "./CreditCard"
 
-function Balance({ balance }) {
+function Balance({ balance, name }) {
     return (
         <div className="flex justify-around m-5">
             <div className="flex flex-col justify-center rounded-xl items-center px-20 ml-5 bg-gray-800">
@@ -9,7 +9,7 @@ function Balance({ balance }) {
                 <div className="text-sm leading-10 font-medium text-gray-400">Savings Account</div>
             </div>
            
-            <CreditCard />
+            <CreditCard fullname={name} />
         </div>
     )
 }

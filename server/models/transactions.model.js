@@ -1,25 +1,15 @@
 import mongoose from 'mongoose';
 
 const TransactionSchema = mongoose.Schema({
+    transactionId: {
+        type: String,
+        unique: true,
+        required: true,
+    },
     date: {
         type: Date,
         required: true,
         default: Date.now,
-    },
-    transactionId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        trim: true,
-        lowercase: true,
     },
     transaction: {
         type: Number,
@@ -38,6 +28,20 @@ const TransactionSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    userType: {
+        type: String,
+        default: 'send',
+        required: true,
+    },
+    recipientType: {
+        type: String,
+        default: 'receive',
+        required: true,
+    },
+    note: {
+        type: String,
+        trim: true,
     }
 }, {
     timestamps: true

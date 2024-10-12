@@ -1,4 +1,4 @@
-function CreditCard() {
+function CreditCard({ fullname}) {
     return (
         <div className="relative h-48 w-80 rounded-xl bg-gradient-to-r from-purple-800 
     to-blue-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96">
@@ -6,7 +6,7 @@ function CreditCard() {
                 <div className="flex justify-between">
                     <div className="">
                         <p className="font-light">Full Name</p>
-                        <p className="font-medium tracking-widest">Pulkit Garg</p>
+                        <p className="font-medium tracking-widest">{fullname}</p>
                     </div>
                     <img className="h-14 w-14 object-contain" src="mastercard.png" />
                 </div>

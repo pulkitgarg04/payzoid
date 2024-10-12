@@ -11,7 +11,7 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res) => {
   try {
     const { email, firstName, lastName, password } = req.body;
-  
+
     const { success } = signUpSchema.safeParse(req.body);
     if (!success) {
       return res.status(400).json({ message: 'Invalid Inputs' });
@@ -21,26 +21,26 @@ export const signup = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ message: 'Email already taken' });
     }
-  
+
     const user = new User({
       email,
       firstName,
       lastName,
     });
-    
+
     const hashedPassword = await user.createHash(password);
     user.password = hashedPassword;
     await user.save();
-    
+
     const userId = user._id;
     const account = await Account.create({
       userId,
       balance: Math.floor(Math.random() * 90000) + 10000,
     });
-    
+
     const token = jwt.sign({ userId }, process.env.JWT_SECRET);
     const userResponse = user.toObject();
-    
+
     userResponse.balance = account.balance;
 
     await userLog.create({
@@ -64,11 +64,11 @@ export const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
     const { success } = signinSchema.safeParse({ email, password });
-  
+
     if (!success) {
       return res.status(400).json({ message: 'Invalid Inputs' });
     }
-  
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid Credentials' });
@@ -100,38 +100,55 @@ export const signin = async (req, res) => {
       user: userResponse
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Server Error' }); 
+    return res.status(500).json({ message: 'Server Error' });
   }
 };
 
 export const getUser = async (req, res) => {
   try {
-    if (!req.token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    const { userId } = jwt.decode(req.token);
-
-    const user = await User.findOne({ _id: userId });
-    const account = await Account.findOne({ userId: req.userId });
-
+    const user = await User.findById(req.userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
+
+    const account = await Account.findOne({ userId: req.userId });
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ success: false, message: 'Account not found' });
     }
 
     const userResponse = user.toObject();
     userResponse.balance = account.balance;
 
-    console.log(userResponse);
+    res.status(200).json({
+      success: true,
+      user: userResponse,
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+export const getRecipentant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userResponse = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      _id: user._id,
+    };
 
     res.status(200).json({ user: userResponse });
   } catch (error) {
-    return res.status(500).json({ message: 'Server Error' });
+    return res.status(401).json({ message: 'Server Error' });
   }
-}
+};
 
 export const updateUser = async (req, res) => {
   try {

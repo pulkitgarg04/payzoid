@@ -35,7 +35,7 @@ function User({ user }) {
       <div className="w-40 flex justify-center items-center text-sm">
         <ButtonComponent
           onClick={() => {
-            navigate("/send?id=" + user._id + "&name=" + user.firstName);
+            navigate("/send/" + user._id);
           }}
           text={"Send Money"}
         />
@@ -44,36 +44,39 @@ function User({ user }) {
   );
 }
 
-
-function Users() {
+function Users({ currentUserID }) {
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/v1/user/bulk?filter=" + filter)
-      .then((response) => {
-        setUsers(response.data.user);
-      });
-  }, [filter]);
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/bulk?filter=${filter}`);
+        const filteredUsers = response.data.user.filter(user => user._id !== currentUserID);
+        setUsers(filteredUsers);
+      } catch (error) {
+        console.error("Error fetching users", error);
+      }
+    };
+
+    fetchUsers();
+  }, [filter, currentUserID]);
 
   return (
     <div className="px-10">
       <input
         className="px-2 py-1 rounded outline-2 outline-gray-300 outline w-full"
         type="text"
-        onChange={(e) => {
-          setFilter(e.target.value);
-        }}
+        onChange={(e) => setFilter(e.target.value)}
         placeholder="Search people..."
       />
       <div>
         {users.map((user) => (
-          <User user={user} />
+          <User key={user._id} user={user} />
         ))}
       </div>
     </div>
   );
-};
+}
 
 export default Users;

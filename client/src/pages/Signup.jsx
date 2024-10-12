@@ -36,6 +36,7 @@ function Signup() {
 
       if (response.data.success || response.status == 200) {
         setUser(response.data.user);
+        localStorage.setItem("token", response.data.token);
         toast.success(response.data.message);
         setTimeout(() => {
           navigate('/dashboard');
