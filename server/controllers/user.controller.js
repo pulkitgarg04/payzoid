@@ -7,10 +7,16 @@ import {
   updateUserSchema,
 } from '../utils/zodSchemas.js';
 import jwt from 'jsonwebtoken';
+import { otpTemplate } from '../utils/mailTemplates/otpVerification.template.js';
+import { mailsender } from '../utils/mailSender.js';
 
 export const signup = async (req, res) => {
+  const { email, firstName, lastName, password } = req.body;
+
   try {
-    const { email, firstName, lastName, password } = req.body;
+    if (!email || !password || !firstName || !lastName) {
+			throw new Error("All fields are required");
+		}
 
     const { success } = signUpSchema.safeParse(req.body);
     if (!success) {
@@ -22,10 +28,18 @@ export const signup = async (req, res) => {
       return res.status(409).json({ message: 'Email already taken' });
     }
 
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    const name = `${firstName} ${lastName}`;
+    const htmlContent = otpTemplate(verificationToken, name);
+    await mailsender(email, "PayZoid: Here's the verification code you requested", htmlContent);
+
     const user = new User({
       email,
       firstName,
       lastName,
+      verificationToken,
+			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     });
 
     const hashedPassword = await user.createHash(password);
@@ -48,21 +62,24 @@ export const signup = async (req, res) => {
       action: 'signup',
     });
 
+    delete userResponse.password;
+
     res.status(200).json({
       success: true,
       message: 'Account created successfully',
       token,
-      user: userResponse,
+      user: userResponse
     });
-
   } catch (error) {
-    return res.status(500).json({ message: 'Server Error' });
+    // console.log('Error in signup', error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-export const signin = async (req, res) => {
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
     const { success } = signinSchema.safeParse({ email, password });
 
     if (!success) {
@@ -71,7 +88,7 @@ export const signin = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid Credentials' });
+      return res.status(401).json({ message: "User doesn't exist" });
     }
 
     const isValidPassword = await user.validatePassword(password);
@@ -84,7 +101,6 @@ export const signin = async (req, res) => {
 
     const account = await Account.findOne({ userId });
     const userResponse = user.toObject();
-    delete userResponse.password;
 
     userResponse.balance = account.balance;
 
@@ -93,15 +109,62 @@ export const signin = async (req, res) => {
       action: 'login',
     });
 
+    delete userResponse.password;
+
     return res.status(200).json({
       success: true,
       message: 'Login Successful',
       token,
-      user: userResponse
+      user: userResponse,
     });
   } catch (error) {
     return res.status(500).json({ message: 'Server Error' });
   }
+};
+
+export const checkAuth = async (req, res) => {
+	try {
+		const user = await User.findById(req.userId).select("-password");
+		if (!user) {
+			return res.status(400).json({ success: false, message: "User not found" });
+		}
+
+		res.status(200).json({ success: true, user });
+	} catch (error) {
+		console.log("Error in checkAuth ", error);
+		res.status(400).json({ success: false, message: error.message });
+	}
+};
+
+export const verifyEmail = async (req, res) => {
+	const { code } = req.body;
+	try {
+		const user = await User.findOne({
+			verificationToken: code,
+			verificationTokenExpiresAt: { $gt: Date.now() },
+		});
+
+		if (!user) {
+			return res.status(400).json({ success: false, message: "Invalid or expired verification code" });
+		}
+
+		user.isVerified = true;
+		user.verificationToken = undefined;
+		user.verificationTokenExpiresAt = undefined;
+		await user.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Email verified successfully",
+			user: {
+				...user._doc,
+				password: undefined,
+			},
+		});
+	} catch (error) {
+		console.log("error in verifyEmail ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
 };
 
 export const getUser = async (req, res) => {

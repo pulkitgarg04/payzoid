@@ -53,11 +53,11 @@ function TransactionTable({ transactions }) {
                                                 </td>
                                                 <td className="p-2 whitespace-nowrap">
                                                     <div className={`text-center font-medium ${transaction.transaction > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                                        ${Math.abs(transaction.transaction).toFixed(2)}
+                                                        Rs. {Math.abs(transaction.transaction).toFixed(2)}
                                                     </div>
                                                 </td>
                                                 <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center font-medium">${transaction.balance.toFixed(2)}</div>
+                                                    <div className="text-center font-medium">Rs. {transaction.balance.toFixed(2)}</div>
                                                 </td>
                                             </tr>
                                         ))}

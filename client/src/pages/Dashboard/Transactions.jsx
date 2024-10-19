@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Sidebar from '../../components/Sidebar';
-import Appbar from '../../components/Appbar';
+import Sidebar from '../../components/Dashboard/Sidebar';
+import Appbar from '../../components/Dashboard/Appbar';
 import TransactionTable from '../../components/TransactionTable';
 import toast, { Toaster } from 'react-hot-toast';
 

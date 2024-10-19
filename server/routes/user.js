@@ -1,19 +1,31 @@
 import express from 'express';
 import {
-  filterUsers,
-  signin,
+  login,
+  // logout,
   signup,
+  verifyEmail,
+  // forgotPassword,
+  // resetPassword,
+  checkAuth,
+
   getUser,
+  filterUsers,
   getRecipentant,
   updateUser,
 } from '../controllers/user.controller.js';
+
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/signup', signup);
+router.get('/check-auth', authMiddleware, checkAuth);
 
-router.post('/signin', signin);
+router.post('/signup', signup);
+router.post('/login', login);
+
+router.post("/verify-email", verifyEmail);
+// router.post("/forgot-password", forgotPassword);
+// router.post("/reset-password/:token", resetPassword);
 
 router.get('/getUserData', authMiddleware, getUser);
 router.get('/getRecipentant/:id', getRecipentant);
