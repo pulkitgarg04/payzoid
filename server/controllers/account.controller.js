@@ -96,27 +96,25 @@ export const transfer = async (req, res) => {
 
 export const getLatestTransactions = async (req, res) => {
   try {
-    // Find transactions where the user is either the sender or the recipient
     const transactions = await Transaction.find({
       $or: [
-        { userId: req.userId },          // Transactions sent by the user
-        { recipientId: req.userId }      // Transactions received by the user
+        { userId: req.userId },
+        { recipientId: req.userId }
       ]
     }).sort({ createdAt: -1 });
 
     const allTransactions = await Promise.all(transactions.map(async (transaction) => {
-      // Get recipient details
-      const recipient = await User.findById(transaction.recipientId).select('firstName lastName email');
-
-      // Determine if the transaction was sent or received
       const isSent = transaction.userId.toString() === req.userId.toString();
+      const counterpartId = isSent ? transaction.recipientId : transaction.userId;
+
+      const counterpartUser = await User.findById(counterpartId).select('firstName lastName email');
 
       return {
         ...transaction._doc,
-        recipientName: recipient ? `${recipient.firstName} ${recipient.lastName}` : 'Unknown',
-        recipientEmail: recipient ? recipient.email : 'Unknown',
+        counterpartName: counterpartUser ? `${counterpartUser.firstName} ${counterpartUser.lastName}` : 'Unknown',
+        counterpartEmail: counterpartUser ? counterpartUser.email : 'Unknown',
         transactionType: isSent ? 'Sent' : 'Received',
-        amount: isSent ? -transaction.transaction : transaction.transaction, // Negative for sent, positive for received
+        amount: transaction.transaction,
       };
     }));
 

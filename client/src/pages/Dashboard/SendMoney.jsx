@@ -4,51 +4,17 @@ import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 
 function SendMoney() {
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [recipient, setRecipient] = useState(null);
-    const [userDetails, setUserDetails] = useState({ name: '', email: '', balance: 0 });
     const { id } = useParams();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                navigate('/login');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/getUserData/`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to fetch user details');
-                }
-
-                setUserDetails({
-                    name: data.user.name || "Pulkit Garg",
-                    email: data.user.email || 'testuser@email.com',
-                    balance: data.user.balance || 0
-                });
-            } catch (error) {
-                toast.error(error.message || 'Error fetching user details');
-            }
-        };
-
-        fetchUserDetails();
-    }, [navigate]);
+    const { user } = useAuthStore();
+    const name = `${user.firstName} ${user.lastName}`;
 
     useEffect(() => {
         const fetchRecipientDetails = async () => {
@@ -77,7 +43,7 @@ function SendMoney() {
             return;
         }
 
-        if (amount > userDetails.balance) {
+        if (amount > user.balance) {
             toast.error('Insufficient balance.');
             return;
         }
@@ -130,7 +96,7 @@ function SendMoney() {
             </aside>
 
             <div className='flex-1'>
-                <Appbar name={userDetails.name} />
+                <Appbar name={name} />
 
                 <div className="font-manrope flex flex-col items-center justify-center">
                     <div className="font-bold text-2xl m-5">Send Money</div>
@@ -149,7 +115,7 @@ function SendMoney() {
                             </div>
 
                             <div className='mt-3 text-center'>
-                                <p>Total Balance: <span className='font-bold'>&#8377; {userDetails.balance.toFixed(2)}</span></p>
+                                <p>Total Balance: <span className='font-bold'>&#8377; {user.balance.toFixed(2)}</span></p>
                             </div>
 
                             <div className="mt-6">
@@ -179,12 +145,12 @@ function SendMoney() {
                                 <div className="font-semibold">From</div>
                                 <div className="flex items-center gap-x-[10px] bg-neutral-100 p-3 mt-2 rounded-[4px]">
                                     <div className="rounded-full flex justify-center items-center bg-slate-200 h-14 w-14">
-                                        <div className=""> {userDetails.name[0]}</div>
+                                        <div className=""> {name[0]}</div>
                                     </div>
                                     <div>
-                                        <div className="font-semibold">{userDetails.name}</div>
-                                        <div className="text-[#64748B]">{userDetails.email}</div>
-                                        <div className="text-[#64748B] text-sm">Banking Name: {userDetails.name}</div>
+                                        <div className="font-semibold">{name}</div>
+                                        <div className="text-[#64748B]">{user.email}</div>
+                                        <div className="text-[#64748B] text-sm">Banking Name: {name}</div>
                                     </div>
                                 </div>
                             </div>

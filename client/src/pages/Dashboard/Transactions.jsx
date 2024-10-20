@@ -3,9 +3,12 @@ import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
 import TransactionTable from '../../components/TransactionTable';
 import toast, { Toaster } from 'react-hot-toast';
+import { useAuthStore } from '../../store/authStore';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
+  const { user } = useAuthStore();
+  const name = `${user.firstName} ${user.lastName}`;
 
   const fetchTransactions = async () => {
     const token = localStorage.getItem('token');
@@ -47,7 +50,7 @@ const Transactions = () => {
       </aside>
 
       <div className='flex-1'>
-        <Appbar name={"Pulkit Garg"} />
+        <Appbar name={name} />
         <h2 className='text-2xl font-bold m-8'>Transactions</h2>
         <TransactionTable transactions={transactions} />
       </div>

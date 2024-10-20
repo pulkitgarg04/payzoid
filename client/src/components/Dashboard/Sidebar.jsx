@@ -33,7 +33,7 @@ function Sidebar() {
                         </li>
 
                         <li>
-                            <Link to="/transactions" className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-indigo-500 pr-6">
+                            <Link to="/dashboard/transactions" className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-indigo-500 pr-6">
                                 <span className="inline-flex justify-center items-center ml-4">
                                     <svg className="w-5 h-5" fill="#000000" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><path d="M56.5,49L56.5,49V1c0-0.6-0.4-1-1-1h-45c-0.6,0-1,0.4-1,1v14h2V2h43v46h-9c-0.6,0-1,0.4-1,1v9h-33V43h-2v16
 			c0,0.6,0.4,1,1,1h35c0.3,0,0.5-0.1,0.7-0.3l10-10c0.1-0.1,0.1-0.2,0.2-0.3v-0.1C56.5,49.2,56.5,49.1,56.5,49z M46.5,50h6.6

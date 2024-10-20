@@ -1,26 +1,12 @@
-import { useEffect, useState } from 'react';
 import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
 import Balance from '../../components/Dashboard/Balance';
 import Users from '../../components/Users';
-import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
   const name = `${user.firstName} ${user.lastName}`;
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem('token');
-
-  //   if (!token) {
-  //     navigate('/login');
-  //     return;
-  //   }
-
-  // }, [navigate]);
 
   return (
     <div className="flex">
@@ -38,7 +24,6 @@ const Dashboard = () => {
           <Users currentUserID={user._id} />
         </div>
       </div>
-      <Toaster />
     </div>
   );
 };

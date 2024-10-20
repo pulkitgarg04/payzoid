@@ -16,13 +16,16 @@ function TransactionTable({ transactions }) {
                                                 <div className="font-semibold text-center">Transaction Id</div>
                                             </th>
                                             <th className="p-2 whitespace-nowrap">
-                                                <div className="font-semibold text-center">Name</div>
+                                                <div className="font-semibold text-center">Counterpart Name</div>
                                             </th>
                                             <th className="p-2 whitespace-nowrap">
-                                                <div className="font-semibold text-center">Email</div>
+                                                <div className="font-semibold text-center">Counterpart Email</div>
                                             </th>
                                             <th className="p-2 whitespace-nowrap">
-                                                <div className="font-semibold text-center">Transaction</div>
+                                                <div className="font-semibold text-center">Transaction Type</div>
+                                            </th>
+                                            <th className="p-2 whitespace-nowrap">
+                                                <div className="font-semibold text-center">Amount</div>
                                             </th>
                                             <th className="p-2 whitespace-nowrap">
                                                 <div className="font-semibold text-center">Balance</div>
@@ -42,18 +45,21 @@ function TransactionTable({ transactions }) {
                                                     <div className="flex items-center">
                                                         <div className="w-10 h-10 flex-shrink-0 mr-2 sm:mr-3">
                                                             <div className="rounded-full flex justify-center items-center bg-slate-200 h-10 w-10">
-                                                                <div>{transaction.recipientName[0]}</div>
+                                                                <div>{transaction.counterpartName[0]}</div>
                                                             </div>
                                                         </div>
-                                                        <div className="font-medium text-gray-800">{transaction.recipientName}</div>
+                                                        <div className="font-medium text-gray-800">{transaction.counterpartName}</div>
                                                     </div>
                                                 </td>
                                                 <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center">{transaction.recipientEmail}</div>
+                                                    <div className="text-center">{transaction.counterpartEmail}</div>
                                                 </td>
                                                 <td className="p-2 whitespace-nowrap">
-                                                    <div className={`text-center font-medium ${transaction.transaction > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                                        Rs. {Math.abs(transaction.transaction).toFixed(2)}
+                                                    <div className="text-center">{transaction.transactionType}</div>
+                                                </td>
+                                                <td className="p-2 whitespace-nowrap">
+                                                    <div className={`text-center font-medium ${transaction.transactionType === 'Sent' ? 'text-red-500' : 'text-green-500'}`}>
+                                                        Rs. {Math.abs(transaction.amount).toFixed(2)}
                                                     </div>
                                                 </td>
                                                 <td className="p-2 whitespace-nowrap">

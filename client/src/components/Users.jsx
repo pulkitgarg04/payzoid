@@ -35,7 +35,7 @@ function User({ user }) {
       <div className="w-40 flex justify-center items-center text-sm">
         <ButtonComponent
           onClick={() => {
-            navigate("/send/" + user._id);
+            navigate("/dashboard/send/" + user._id);
           }}
           text={"Send Money"}
         />
