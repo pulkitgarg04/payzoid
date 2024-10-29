@@ -259,6 +259,11 @@ export const filterUsers = async (req, res) => {
             $regex: regexFilter,
           },
         },
+        {
+          email: {
+            $regex: regexFilter,
+          },
+        },
       ],
     });
 

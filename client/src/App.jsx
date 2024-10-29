@@ -14,6 +14,8 @@ import Transactions from "./pages/Dashboard/Transactions";
 
 import { useAuthStore } from "./store/authStore.js";
 import { useEffect } from "react";
+import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -54,6 +56,18 @@ function App() {
             path="/"
             element={
               <Home />
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <About />
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <Contact />
             }
           />
 

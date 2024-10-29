@@ -1,14 +1,27 @@
 import { Link } from "react-router-dom"
 import { useAuthStore } from "../../store/authStore"
+import { toast } from "react-hot-toast"
 
 function Sidebar() {
     const { logout } = useAuthStore();
     
     const handleLogout = () => {
-        setTimeout(() => {
-        logout();
-        }, 1000);
-    }
+        toast.promise(
+            new Promise((resolve, reject) => {
+                try {
+                    logout();
+                    resolve('Logout successful!');
+                } catch (e) {
+                    reject(new Error('Error logging out'));
+                }
+            }),
+            {
+                loading: 'Logging out...',
+                success: <b>You have been logged out!</b>,
+                error: <b>Could not log out.</b>,
+            }
+        );
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800">
