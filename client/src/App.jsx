@@ -16,6 +16,7 @@ import { useAuthStore } from "./store/authStore.js";
 import { useEffect } from "react";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
+import AccountLogs from "./pages/Dashboard/AccountLogs.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -141,6 +142,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SendMoney />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/account-logs"
+            element={
+              <ProtectedRoute>
+                <AccountLogs />
               </ProtectedRoute>
             }
           />

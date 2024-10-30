@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
-import TransactionTable from '../../components/Transactions/TransactionTable';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
+import AccountLogsTable from '../../components/AccountLogs/AccountLogsTable';
 
-const Transactions = () => {
-  const [transactions, setTransactions] = useState([]);
+const AccountLogs = () => {
+  const [logs, setLogs] = useState([]);
   const { user } = useAuthStore();
   const name = `${user.firstName} ${user.lastName}`;
 
@@ -33,7 +33,7 @@ const Transactions = () => {
         throw new Error(data.message || 'Failed to fetch transactions');
       }
 
-      setTransactions(data.transactions);
+      setLogs(data.transactions);
     } catch (error) {
       toast.error(error.message || 'Error fetching transactions');
     }
@@ -51,11 +51,11 @@ const Transactions = () => {
 
       <div className='flex-1'>
         <Appbar name={name} />
-        <h2 className='text-2xl font-bold m-8'>Transactions</h2>
-        <TransactionTable transactions={transactions} />
+        <h2 className='text-2xl font-bold m-8'>Account Logs</h2>
+        <AccountLogsTable transactions={logs} />
       </div>
     </div>
   );
 };
 
-export default Transactions;
+export default AccountLogs;
