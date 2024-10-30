@@ -15,23 +15,39 @@ export const useAuthStore = create((set) => ({
 
     signup: async (email, password, firstName, lastName) => {
         set({ isLoading: true, error: null });
-
+    
         try {
             const response = await axios.post(`${API_URL}/signup`, { email, password, firstName, lastName });
-            set({
-                user: response.data.user,
-                isAuthenticated: true,
-                isLoading: false
-            });
-            localStorage.setItem("token", response.data.token);
+            
+            if (response.status === 200) {
+                localStorage.setItem("token", response.data.token);
+                set({
+                    user: response.data.user,
+                    isAuthenticated: true,
+                    isLoading: false,
+                    error: null
+                });
+                return true;
+            } else {
+                throw new Error(response.data.message || "Unexpected response");
+            }
         } catch (error) {
+            let errorMessage = "Error signing up";
+            console.log('Signup error:', error);
+            
+            if (error.response?.status === 409) {
+                errorMessage = error.response?.data?.message || "Email is already in use.";
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            
             set({
-                error: error.response.data.message || "Error signing up",
+                error: errorMessage,
                 isLoading: false
             });
-            throw error;
+            throw new Error(errorMessage);
         }
-    },
+    },    
 
     login: async (email, password) => {
         set({ isLoading: true, error: null });
@@ -78,7 +94,7 @@ export const useAuthStore = create((set) => ({
                 isAuthenticated: true,
                 isLoading: false
             });
-            return response.data;
+            return true;
         } catch (error) {
             set({ error: error.response.data.message || "Error verifying email", isLoading: false });
             throw error;
@@ -92,17 +108,18 @@ export const useAuthStore = create((set) => ({
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
-            }
-            );
+            });
+    
             set({
-                user: response.data.user,
+                user: response.data.user || null,
                 isAuthenticated: true,
                 isCheckingAuth: false
             });
-        } catch {
-            set({ error: null, isCheckingAuth: false, isAuthenticated: false });
+        } catch (error) {
+            console.error("Authentication check failed:", error);
+            set({ error: error.response?.data?.message || "Failed to check authentication", isCheckingAuth: false, isAuthenticated: false });
         }
-    },
+    },    
 
     forgetPassword: async (email) => {
         set({ isLoading: true, error: null });

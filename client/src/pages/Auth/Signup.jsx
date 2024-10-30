@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Header from "../../components/Home/Header";
 import { useAuthStore } from "../../store/authStore";
 
@@ -27,12 +27,10 @@ function Input({ id, label, type = "text", value, onChange, required = true, ...
 }
 
 function Signup() {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: ''
-  });
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
 
   const navigate = useNavigate();
@@ -42,29 +40,20 @@ function Signup() {
     setPasswordShown((prev) => !prev);
   };
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signup(formData.email, formData.password, formData.firstName, formData.lastName);
+      const result = await signup(email, password, firstName, lastName);
 
-      if (isAuthenticated) {
-        toast.success('Signed up successfully!');
+      if (result) {
+        toast.success('Signed up successfully! Please verify your email.');
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/verify-email');
         }, 2000);
-      } else {
-        toast.warn('Please verify your email.');
-        navigate('/verify-email');
       }
-    } catch {
-      toast.error(error || "Signup failed. Please try again.");
+    } catch (error) {
+      console.log("Error during signup:", error);
+      toast.error(error.message || "Signup failed. Please try again.");
     }
   };
 
@@ -84,24 +73,24 @@ function Signup() {
             id="firstName"
             label="First Name"
             type="text"
-            value={formData.firstName}
-            onChange={handleInputChange}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
           />
 
           <Input
             id="lastName"
             label="Last Name"
             type="text"
-            value={formData.lastName}
-            onChange={handleInputChange}
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
 
           <Input
             id="email"
             label="Email address"
             type="email"
-            value={formData.email}
-            onChange={handleInputChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <div>
@@ -109,8 +98,8 @@ function Signup() {
               id="password"
               label="Password"
               type={passwordShown ? "text" : "password"}
-              value={formData.password}
-              onChange={handleInputChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <div className="flex mt-4">
               <input

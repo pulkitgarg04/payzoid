@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Header from "../../components/Home/Header";
 import { useAuthStore } from "../../store/authStore";
 
@@ -42,21 +42,24 @@ function Login() {
     e.preventDefault();
     try {
       await login(email, password);
-      if (isAuthenticated && user?.isVerified) {
-        toast.success("Redirecting to dashboard...");
-        setTimeout(() => navigate("/dashboard"), 2000);
-      } else if (isAuthenticated && !user?.isVerified) {
-        toast("Please verify your email!", { icon: '⚠️' });
-        setTimeout(() => navigate("/verify-email"), 2000);
+  
+      if (isAuthenticated) {
+        if (user?.isVerified) {
+          toast.success("Redirecting to dashboard...");
+          setTimeout(() => navigate("/dashboard"), 2000);
+        } else {
+          toast("Please verify your email!", { icon: '⚠️' });
+          setTimeout(() => navigate("/verify-email"), 2000);
+        }
       } else {
-        toast.success("Login successful!");
+        toast.error("Login failed. Please try again.");
       }
-
+  
     } catch (error) {
       console.error('Login failed:', error);
       toast.error(error.response?.data?.message || "Login failed. Please try again.");
     }
-  };  
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">

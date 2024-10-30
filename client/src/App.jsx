@@ -18,7 +18,11 @@ import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
+
+  if (isCheckingAuth) {
+    return <div>Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -42,11 +46,15 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { checkAuth } = useAuthStore();
+  const { checkAuth, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

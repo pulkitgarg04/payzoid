@@ -56,22 +56,21 @@ export const signup = async (req, res) => {
     const userResponse = user.toObject();
 
     userResponse.balance = account.balance;
+    delete userResponse.password;
 
     await userLog.create({
       userId,
       action: 'signup',
     });
 
-    delete userResponse.password;
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Account created successfully',
       token,
       user: userResponse
     });
   } catch (error) {
-    // console.log('Error in signup', error);
+    console.log('Error in signup', error);
     return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
