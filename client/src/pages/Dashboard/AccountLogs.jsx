@@ -10,16 +10,16 @@ const AccountLogs = () => {
   const { user } = useAuthStore();
   const name = `${user.firstName} ${user.lastName}`;
 
-  const fetchTransactions = async () => {
+  const fetchLogs = async () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      toast.error('You need to be logged in to view transactions.');
+      toast.error('You need to be logged in to view logs.');
       return;
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/account/transactions`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/getUserLogs`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -30,17 +30,17 @@ const AccountLogs = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch transactions');
+        throw new Error(data.message || 'Failed to fetch user logs');
       }
 
-      setLogs(data.transactions);
+      setLogs(data.userLogs);
     } catch (error) {
-      toast.error(error.message || 'Error fetching transactions');
+      toast.error(error.message || 'Error fetching user logs');
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
+    fetchLogs();
   }, []);
 
   return (
@@ -52,7 +52,7 @@ const AccountLogs = () => {
       <div className='flex-1'>
         <Appbar name={name} />
         <h2 className='text-2xl font-bold m-8'>Account Logs</h2>
-        <AccountLogsTable transactions={logs} />
+        <AccountLogsTable logs={logs} />
       </div>
     </div>
   );

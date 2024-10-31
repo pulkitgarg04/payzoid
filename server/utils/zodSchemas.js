@@ -15,5 +15,11 @@ export const signinSchema = zod.object({
 export const updateUserSchema = zod.object({
   firstName: zod.string().optional(),
   lastName: zod.string().optional(),
-  password: zod.string().optional(),
+  phone: zod.string().optional(),
+  gender: zod.string().optional(),
+  bio: zod.string().optional(),
+  country: zod.string().optional(),
+  city: zod.string().optional(),
+  postalcode: zod.string().optional(),
+  taxid: zod.string().optional(),
 });

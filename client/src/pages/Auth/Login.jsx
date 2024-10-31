@@ -41,9 +41,9 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      const loginSuccess = await login(email, password);
   
-      if (isAuthenticated) {
+      if (loginSuccess && isAuthenticated) {
         if (user?.isVerified) {
           toast.success("Redirecting to dashboard...");
           setTimeout(() => navigate("/dashboard"), 2000);
@@ -51,10 +51,7 @@ function Login() {
           toast("Please verify your email!", { icon: '⚠️' });
           setTimeout(() => navigate("/verify-email"), 2000);
         }
-      } else {
-        toast.error("Login failed. Please try again.");
       }
-  
     } catch (error) {
       console.error('Login failed:', error);
       toast.error(error.response?.data?.message || "Login failed. Please try again.");

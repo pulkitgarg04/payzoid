@@ -89,7 +89,7 @@ function Sidebar() {
                         <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>
 
                         <SidebarSection title="Settings" />
-                        <SidebarItem icon={<CgProfile />}>Profile</SidebarItem>
+                        <SidebarItem to="/dashboard/profile" icon={<CgProfile />}>Profile</SidebarItem>
                         <SidebarItem icon={<IoMdSettings />}>Settings</SidebarItem>
                         <SidebarItem icon={<IoIosLogOut />} onClick={handleLogout}>Logout</SidebarItem>
                     </ul>

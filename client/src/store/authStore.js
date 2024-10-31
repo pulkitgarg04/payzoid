@@ -54,13 +54,17 @@ export const useAuthStore = create((set) => ({
         
         try {
             const response = await axios.post(`${API_URL}/login`, { email, password });
+
             set({
                 user: response.data.user,
                 isAuthenticated: true,
                 error: null,
                 isLoading: false
             });
+
             localStorage.setItem("token", response.data.token);
+
+            return true;
         } catch (error) {
             console.error('Login error:', error);
             set({
@@ -154,4 +158,35 @@ export const useAuthStore = create((set) => ({
             throw error;
         }
     },
+
+    updateUser: async (userData) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await fetch(`${API_URL}/update`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+    
+            const data = await response.json();
+            console.log('Response from update:', data);
+    
+            if (response.status === 200) {
+                set({ user: data.user, isLoading: false });
+                return true;
+            } else {
+                throw new Error(data.message || "Unexpected response");
+            }
+        } catch (error) {
+            console.error("Error updating user:", error);
+            set({
+                error: error.message || "Error updating user",
+                isLoading: false
+            });
+            throw error;
+        }
+    },    
 }));

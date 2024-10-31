@@ -1,22 +1,21 @@
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
-
-import Home from "./pages/Home";
-
-import Signup from "./pages/Auth/Signup.jsx";
-import Login from "./pages/Auth/Login.jsx";
-import EmailVerificationPage from "./pages/Auth/EmailVerificationPage";
-import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
-
-import Dashboard from "./pages/Dashboard/Home";
-import Profile from "./pages/Dashboard/Profile";
-import SendMoney from "./pages/Dashboard/SendMoney.jsx";
-import Transactions from "./pages/Dashboard/Transactions";
+import { Suspense, lazy, useEffect } from "react";
 
 import { useAuthStore } from "./store/authStore.js";
-import { useEffect } from "react";
-import About from "./pages/About.jsx";
-import Contact from "./pages/Contact.jsx";
-import AccountLogs from "./pages/Dashboard/AccountLogs.jsx";
+import Loading from "./components/Loading.jsx";
+
+const Home = lazy(() => import("./pages/Home"));
+const Signup = lazy(() => import("./pages/Auth/Signup"));
+const Login = lazy(() => import("./pages/Auth/Login"));
+const EmailVerificationPage = lazy(() => import("./pages/Auth/EmailVerificationPage"));
+const ResetPasswordPage = lazy(() => import("./pages/Auth/ResetPasswordPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard/Home"));
+const Profile = lazy(() => import("./pages/Dashboard/Profile"));
+const SendMoney = lazy(() => import("./pages/Dashboard/SendMoney"));
+const Transactions = lazy(() => import("./pages/Dashboard/Transactions"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const AccountLogs = lazy(() => import("./pages/Dashboard/AccountLogs"));
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -47,116 +46,34 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 function App() {
-  const { checkAuth, isCheckingAuth } = useAuthStore();
+  const { checkAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  if (isCheckingAuth) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Suspense fallback={<Loading />}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Home />
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <About />
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <Contact />
-            }
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          
+          <Route path="/signup" element={<RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser>} />
+          <Route path="/login" element={<RedirectAuthenticatedUser><Login /></RedirectAuthenticatedUser>} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route path="/reset-password/:token" element={<RedirectAuthenticatedUser><ResetPasswordPage /></RedirectAuthenticatedUser>} />
 
-          <Route
-            path="/signup"
-            element={
-              <RedirectAuthenticatedUser>
-                <Signup />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <RedirectAuthenticatedUser>
-                <Login />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path="/verify-email"
-            element={
-              <RedirectAuthenticatedUser>
-                <EmailVerificationPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-          <Route
-            path='/reset-password/:token'
-            element={
-              <RedirectAuthenticatedUser>
-                <ResetPasswordPage />
-              </RedirectAuthenticatedUser>
-            }
-          />
-
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/transactions"
-            element={
-              <ProtectedRoute>
-                <Transactions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="dashboard/send/:id"
-            element={
-              <ProtectedRoute>
-                <SendMoney />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/account-logs"
-            element={
-              <ProtectedRoute>
-                <AccountLogs />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/dashboard/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+          <Route path="/dashboard/send/:id" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
+          <Route path="/dashboard/account-logs" element={<ProtectedRoute><AccountLogs /></ProtectedRoute>} />
         </Routes>
-      </BrowserRouter>
-    </div>
-  )
+      </Suspense>
+    </BrowserRouter>
+  );
 }
 
 export default App;

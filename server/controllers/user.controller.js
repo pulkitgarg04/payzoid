@@ -9,6 +9,9 @@ import {
 import jwt from 'jsonwebtoken';
 import { otpTemplate } from '../utils/mailTemplates/otpVerification.template.js';
 import { mailsender } from '../utils/mailSender.js';
+import DeviceDetector from 'node-device-detector';
+
+const detector = new DeviceDetector();
 
 export const signup = async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
@@ -58,9 +61,15 @@ export const signup = async (req, res) => {
     userResponse.balance = account.balance;
     delete userResponse.password;
 
+    const userAgent = req.headers['user-agent'];
+    const detectedDevice = detector.detect(userAgent);
+
     await userLog.create({
       userId,
-      action: 'signup',
+      activityType: 'Signup',
+      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
+      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
+      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
     });
 
     return res.status(200).json({
@@ -102,13 +111,18 @@ export const login = async (req, res) => {
     const userResponse = user.toObject();
 
     userResponse.balance = account.balance;
+    delete userResponse.password;
+
+    const userAgent = req.headers['user-agent'];
+    const detectedDevice = detector.detect(userAgent);
 
     await userLog.create({
       userId,
-      action: 'login',
+      activityType: 'Login',
+      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
+      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
+      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
     });
-
-    delete userResponse.password;
 
     return res.status(200).json({
       success: true,
@@ -197,6 +211,17 @@ export const getUser = async (req, res) => {
   }
 };
 
+export const getUserLogs = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const userLogs = await userLog.find({ userId }).sort({ timestamp: -1 });
+    res.status(200).json({ success: true, userLogs });
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 export const getRecipentant = async (req, res) => {
   try {
     const { id } = req.params;
@@ -219,26 +244,56 @@ export const getRecipentant = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
+  console.log('Received update request with body:', req.body);
   try {
-    const { firstName, lastName, password } = req.body;
-    const { success } = updateUserSchema.safeParse({
+    const {
       firstName,
       lastName,
-      password,
-    });
+      phone,
+      gender,
+      bio,
+      country,
+      city,
+      postalcode,
+      taxid
+    } = req.body;
+
+    const { success, error } = updateUserSchema.safeParse(req.body);
     if (!success) {
-      return res.status(411).json({ message: 'Invalid Inputs' });
+        console.log('Validation errors:', error.flatten());
+        return res.status(400).json({ 
+            message: 'Invalid Inputs', 
+            errors: error.flatten()
+        });
     }
-    const updateFields = { firstName, lastName };
-    if (password) {
-      const user = await User.findOne({ _id: req.userId });
-      const hashedPassword = await user.createHash(password);
-      updateFields.password = hashedPassword;
+
+    const updateFields = {};
+    if (firstName) updateFields.firstName = firstName;
+    if (lastName) updateFields.lastName = lastName;
+    if (phone) updateFields.phone = phone;
+    if (gender) updateFields.gender = gender;
+    if (bio) updateFields.bio = bio;
+    if (country) updateFields.country = country;
+    if (city) updateFields.city = city;
+    if (postalcode) updateFields.postalcode = postalcode;
+    if (taxid) updateFields.taxid = taxid;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.userId },
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User update failed' });
     }
-    await User.findOneAndUpdate({ _id: req.userId }, updateFields);
-    res.status(200).json({ message: 'User updated Successfully' });
+
+    const { password: _, ...userResponse } = updatedUser.toObject();
+
+    res.status(200).json({ message: 'User updated successfully', user: userResponse });
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    console.error('Error updating user:', error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 

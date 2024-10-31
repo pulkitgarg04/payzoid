@@ -35,6 +35,27 @@ const UserSchema = mongoose.Schema({
     resetPasswordExpiresAt: Date,
     verificationToken: String,
     verificationTokenExpiresAt: Date,
+    phone: {
+        type: String,
+    },
+    gender: {
+        type: String,
+    },
+    bio: {
+        type: String,
+    },
+    country: {
+        type: String,
+    },
+    city: {
+        type: String,
+    },
+    postalcode: {
+        type: String,
+    },
+    taxid: {
+        type: String,
+    }
 }, {
     timestamps: true,
 });

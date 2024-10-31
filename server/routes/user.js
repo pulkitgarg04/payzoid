@@ -1,7 +1,6 @@
 import express from 'express';
 import {
   login,
-  // logout,
   signup,
   verifyEmail,
   // forgotPassword,
@@ -9,6 +8,7 @@ import {
   checkAuth,
 
   getUser,
+  getUserLogs,
   filterUsers,
   getRecipentant,
   updateUser,
@@ -30,7 +30,9 @@ router.post("/verify-email", verifyEmail);
 router.get('/getUserData', authMiddleware, getUser);
 router.get('/getRecipentant/:id', getRecipentant);
 
-router.put('/', authMiddleware, updateUser);
+router.get('/getUserLogs', authMiddleware, getUserLogs);
+
+router.put('/update', authMiddleware, updateUser);
 
 router.get('/bulk', filterUsers);
 

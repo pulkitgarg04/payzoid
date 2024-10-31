@@ -56,7 +56,6 @@ const EmailVerificationPage = () => {
     const verificationCode = otp.join("");
     try {
       const result = await verifyEmail(verificationCode);
-
       
       toast.success("Email verified successfully", {
         duration: 2000,
