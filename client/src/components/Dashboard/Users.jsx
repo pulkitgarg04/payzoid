@@ -52,7 +52,7 @@ function Users({ currentUserID }) {
     const fetchUsers = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/bulk?filter=${filter}`);
-        const filteredUsers = response.data.user.filter(user => user._id !== currentUserID);
+        const filteredUsers = response.data.user.filter(user => user._id !== currentUserID).sort((a, b) => a.firstName.localeCompare(b.firstName));
         setUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users", error);

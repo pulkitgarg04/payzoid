@@ -4,6 +4,7 @@ import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
 import { useAuthStore } from '../../store/authStore';
 import { FaRegEdit } from "react-icons/fa";
+import { MdCameraAlt } from "react-icons/md";
 
 const InputField = ({ label, value, onChange, name }) => (
     <div className="flex flex-col">
@@ -37,12 +38,12 @@ function EditButton({ onEdit }) {
 }
 
 function Profile() {
-    const { user } = useAuthStore();
+    const { user, changeAvatar, updateUser } = useAuthStore();
     const name = `${user.firstName} ${user.lastName}`;
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${name}`;
 
     const [isEditingPersonal, setIsEditingPersonal] = useState(false);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
-    const { updateUser } = useAuthStore();
     const [formData, setFormData] = useState({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -64,10 +65,36 @@ function Profile() {
         }));
     };
 
+    const [image, setImage] = useState(user.avatar || defaultAvatar);
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            changeAvatar(file);
+        } else {
+            console.error("No file selected");
+        }
+    };
+
+    const uploadImage = async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await changeAvatar(formData);
+            if (response) {
+                setImage(URL.createObjectURL(file));
+                toast.success('Image uploaded successfully!');
+            }
+        } catch (error) {
+            toast.error('Failed to upload image');
+        }
+    };
+
     const handleSave = async () => {
         try {
             const result = await updateUser(formData);
-            console.log('Update result: ', result);
             if (result) {
                 toast.success('Profile updated successfully!');
                 setIsEditingPersonal(false);
@@ -96,11 +123,22 @@ function Profile() {
                         <div className='flex justify-between items-center mx-8 mt-6'>
                             <div className="shrink-0 group block">
                                 <div className="flex items-center">
-                                    <img
-                                        className="inline-block shrink-0 w-[62px] h-[62px] rounded-full"
-                                        src={`https://ui-avatars.com/api/?name=${name}`}
-                                        alt="Avatar"
-                                    />
+                                    <div className='relative'>
+                                        <img
+                                            className="inline-block shrink-0 w-[62px] h-[62px] rounded-full"
+                                            src={image}
+                                            alt="Avatar"
+                                        />
+                                        <label className="absolute bottom-0 right-0 cursor-pointer bg-gray-50 rounded-full">
+                                            <MdCameraAlt className="w-5 h-5 m-1 text-gray-500" />
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleFileChange}
+                                            />
+                                        </label>
+                                    </div>
                                     <div className="ms-5">
                                         <h3 className="font-semibold text-lg text-gray-800 dark:text-white">{name}</h3>
                                         <p className="text-md font-medium text-gray-600 dark:text-neutral-500">{formData.email}</p>

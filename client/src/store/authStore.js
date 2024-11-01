@@ -5,188 +5,198 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/v1/user`;
 
 axios.defaults.withCredentials = true;
 
+const handleError = (error) => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || "An unexpected error occurred.";
+  }
+  return error.message || "An unexpected error occurred.";
+};
+
+const convertToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export const useAuthStore = create((set) => ({
-    user: null,
-    isAuthenticated: false,
-    error: null,
-    isLoading: false,
-    isCheckingAuth: true,
-    message: null,
+  user: null,
+  isAuthenticated: false,
+  error: null,
+  isLoading: false,
+  isCheckingAuth: true,
+  message: null,
 
-    signup: async (email, password, firstName, lastName) => {
-        set({ isLoading: true, error: null });
-    
-        try {
-            const response = await axios.post(`${API_URL}/signup`, { email, password, firstName, lastName });
-            
-            if (response.status === 200) {
-                localStorage.setItem("token", response.data.token);
-                set({
-                    user: response.data.user,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null
-                });
-                return true;
-            } else {
-                throw new Error(response.data.message || "Unexpected response");
-            }
-        } catch (error) {
-            let errorMessage = "Error signing up";
-            console.log('Signup error:', error);
-            
-            if (error.response?.status === 409) {
-                errorMessage = error.response?.data?.message || "Email is already in use.";
-            } else if (error.response?.data?.message) {
-                errorMessage = error.response.data.message;
-            }
-            
-            set({
-                error: errorMessage,
-                isLoading: false
-            });
-            throw new Error(errorMessage);
+  signup: async (email, password, firstName, lastName) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await axios.post(`${API_URL}/signup`, {
+        email,
+        password,
+        firstName,
+        lastName,
+      });
+
+      localStorage.setItem("token", response.data.token);
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      return true;
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  login: async (email, password) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+      });
+
+      localStorage.setItem("token", response.data.token);
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        error: null,
+        isLoading: false,
+      });
+
+      return true;
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  logout: async () => {
+    localStorage.clear();
+    set({ user: null, isAuthenticated: false, error: null });
+  },
+
+  verifyEmail: async (code) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.post(`${API_URL}/verify-email`, { code });
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return true;
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  checkAuth: async () => {
+    set({ isCheckingAuth: true });
+    try {
+      const response = await axios.get(`${API_URL}/check-auth`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      set({
+        user: response.data.user || null,
+        isAuthenticated: true,
+        isCheckingAuth: false,
+      });
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({
+        error: errorMessage,
+        isCheckingAuth: false,
+        isAuthenticated: false,
+      });
+    }
+  },
+
+  forgetPassword: async (email) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.post(`${API_URL}/forget-password`, {
+        email,
+      });
+      set({ message: response.data.message, isLoading: false });
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  resetPassword: async (token, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.post(`${API_URL}/reset-password/${token}`, {
+        password,
+      });
+      set({ message: response.data.message, isLoading: false });
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  updateUser: async (userData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/update`, userData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      set({ user: response.data.user, isLoading: false });
+      return true;
+    } catch (error) {
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
+
+  changeAvatar: async (file) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const base64 = await convertToBase64(file);
+
+      const response = await axios.post(av
+        `${API_URL}/upload`,
+        {
+          image: base64,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-    },    
+      );
 
-    login: async (email, password) => {
-        set({ isLoading: true, error: null });
-        
-        try {
-            const response = await axios.post(`${API_URL}/login`, { email, password });
-
-            set({
-                user: response.data.user,
-                isAuthenticated: true,
-                error: null,
-                isLoading: false
-            });
-
-            localStorage.setItem("token", response.data.token);
-
-            return true;
-        } catch (error) {
-            console.error('Login error:', error);
-            set({
-                error: error.response?.data?.message || "Error logging in",
-                isLoading: false
-            });
-            throw error;
-        }
-    },
-    
-    logout: async () => {
-        try {
-            localStorage.clear();
-            set({
-                user: null,
-                isAuthenticated: false,
-                error: null,
-            });
-        } catch (error) {
-            set({ error: "Error logging out" });
-            throw error;
-        }
-    },
-
-    verifyEmail: async (code) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await axios.post(`${API_URL}/verify-email`, { code });
-            set({
-                user: response.data.user,
-                isAuthenticated: true,
-                isLoading: false
-            });
-            return true;
-        } catch (error) {
-            set({ error: error.response.data.message || "Error verifying email", isLoading: false });
-            throw error;
-        }
-    },
-
-    checkAuth: async () => {
-        set({ isCheckingAuth: true });
-        try {
-            const response = await axios.get(`${API_URL}/check-auth`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-    
-            set({
-                user: response.data.user || null,
-                isAuthenticated: true,
-                isCheckingAuth: false
-            });
-        } catch (error) {
-            console.error("Authentication check failed:", error);
-            set({ error: error.response?.data?.message || "Failed to check authentication", isCheckingAuth: false, isAuthenticated: false });
-        }
-    },    
-
-    forgetPassword: async (email) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await axios.post(`${API_URL}/forget-password`, { email });
-            set({
-                message: response.data.message,
-                isLoading: false,
-            });
-        } catch (error) {
-            set({
-                error: error.response.data.message || "Error sending email",
-                isLoading: false
-            });
-            throw error;
-        }
-    },
-
-    resetPassword: async (token, password) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await axios.post(`${API_URL}/reset-password/${token}`, { password });
-            set({
-                message: response.data.message,
-                isLoading: false,
-            });
-        } catch (error) {
-            set({
-                error: error.response.data.message || "Error resetting password",
-                isLoading: false
-            });
-            throw error;
-        }
-    },
-
-    updateUser: async (userData) => {
-        set({ isLoading: true, error: null });
-        try {
-            const response = await fetch(`${API_URL}/update`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData)
-            });
-    
-            const data = await response.json();
-            console.log('Response from update:', data);
-    
-            if (response.status === 200) {
-                set({ user: data.user, isLoading: false });
-                return true;
-            } else {
-                throw new Error(data.message || "Unexpected response");
-            }
-        } catch (error) {
-            console.error("Error updating user:", error);
-            set({
-                error: error.message || "Error updating user",
-                isLoading: false
-            });
-            throw error;
-        }
-    },    
+      const avatarUrl = response.data.data.url;
+        set({ user: { ...response.data.user, avatar: avatarUrl }, isLoading: false });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      const errorMessage = handleError(error);
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
+  },
 }));

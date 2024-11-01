@@ -19,31 +19,31 @@ function TransactionTable({ transactions }) {
     return (
         <div>
             <div className="flex flex-col justify-center">
-                        <div className="flex justify-between mb-3 mx-20">
-                            <div>
-                                <label className="mr-2">Filter by Type:</label>
-                                <select
-                                    value={filterType}
-                                    onChange={(e) => setFilterType(e.target.value)}
-                                    className="border border-gray-300 rounded p-1 dark:bg-gray-700 dark:text-white dark:border-gray-800 dark:focus:border-gray-800"
-                                >
-                                    <option value="all">All</option>
-                                    <option value="sent">Sent</option>
-                                    <option value="received">Received</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="mr-2">Sort by:</label>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    className="border border-gray-300 rounded p-1 dark:bg-gray-700 dark:text-white dark:border-gray-800 dark:focus:border-gray-800"
-                                >
-                                    <option value="date">Date</option>
-                                    <option value="amount">Amount</option>
-                                </select>
-                            </div>
-                        </div>
+                <div className="flex justify-between mb-3 mx-20">
+                    <div>
+                        <label className="mr-2">Filter by Type:</label>
+                        <select
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            className="border border-gray-300 rounded p-1 dark:bg-gray-700 dark:text-white dark:border-gray-800 dark:focus:border-gray-800"
+                        >
+                            <option value="all">All</option>
+                            <option value="sent">Sent</option>
+                            <option value="received">Received</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="mr-2">Sort by:</label>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="border border-gray-300 rounded p-1 dark:bg-gray-700 dark:text-white dark:border-gray-800 dark:focus:border-gray-800"
+                        >
+                            <option value="date">Date</option>
+                            <option value="amount">Amount</option>
+                        </select>
+                    </div>
+                </div>
                 <div className="mx-10 bg-white shadow-lg rounded-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-3">
                         <div className="overflow-x-auto">

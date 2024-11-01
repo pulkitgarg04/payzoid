@@ -52,7 +52,7 @@ const AccountLogs = () => {
       <div className='flex-1'>
         <Appbar name={name} />
         <h2 className='text-2xl font-bold m-8'>Account Logs</h2>
-        <AccountLogsTable logs={logs} />
+        <AccountLogsTable logs={logs} setLogs={setLogs} />
       </div>
     </div>
   );

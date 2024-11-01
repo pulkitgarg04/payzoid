@@ -44,6 +44,9 @@ const UserSchema = mongoose.Schema({
     bio: {
         type: String,
     },
+    avatar: {
+        type: String,
+    },
     country: {
         type: String,
     },

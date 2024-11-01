@@ -11,6 +11,7 @@ import jwt from 'jsonwebtoken';
 import { otpTemplate } from '../utils/mailTemplates/otpVerification.template.js';
 import { mailsender } from '../utils/mailSender.js';
 import DeviceDetector from 'node-device-detector';
+import cloudinary from '../utils/cloudinary.js';
 
 const detector = new DeviceDetector();
 
@@ -223,6 +224,17 @@ export const getUserLogs = async (req, res) => {
   }
 };
 
+export const deleteUserLog = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const logId = req.params.id;
+    await userLog.findOneAndDelete({ _id: logId, userId });
+    res.status(200).json({ message: 'User log deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
 export const getRecipentant = async (req, res) => {
   try {
     const { id } = req.params;
@@ -294,6 +306,50 @@ export const updateUser = async (req, res) => {
   } catch (error) {
     console.error('Error updating user:', error);
     return res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+export const changeAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image data provided",
+      });
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type. Only JPEG, PNG, and GIF are allowed.",
+      });
+    }
+
+    const result = await cloudinary.uploader.upload_stream({
+      folder: 'payzoid/avatars',
+      resource_type: 'image',
+    }, (error, result) => {
+      if (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Error uploading image to Cloudinary.",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: "Uploaded!",
+        data: {
+          url: result.secure_url,
+        },
+      });
+    });
+  } catch (err) {
+    console.error("Error uploading image:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Error uploading image. Please try again.",
+    });
   }
 };
 

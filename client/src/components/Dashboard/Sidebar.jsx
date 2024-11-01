@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
-import { FaHome, FaInbox } from 'react-icons/fa';
+import { FaHome } from 'react-icons/fa';
 import { AiOutlineTransaction, AiOutlineMessage } from 'react-icons/ai';
 import { PiHandWithdrawFill } from 'react-icons/pi';
 import { IoIosNotificationsOutline, IoMdSettings, IoIosLogOut } from 'react-icons/io';
@@ -82,18 +82,11 @@ function Sidebar() {
                             Withdraw / Deposit
                             <span className="px-2 py-0.5 ml-3 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
                         </SidebarItem>
-                        <SidebarItem icon={<FaInbox />}>
-                            Inbox
-                            <span className="px-2 py-0.5 ml-3 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
-                        </SidebarItem>
                         <SidebarItem icon={<AiOutlineMessage />}>
                             Messages
                             <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
                         </SidebarItem>
-                        <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>
-                            Notifications
-                            <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">New</span>
-                        </SidebarItem>
+                        <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>Notifications</SidebarItem>
                         <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>
 
                         <SidebarSection title="Settings" />

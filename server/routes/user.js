@@ -14,9 +14,12 @@ import {
   updateUser,
   getNotifications,
   deleteAllNotifications,
+  deleteUserLog,
+  changeAvatar
 } from '../controllers/user.controller.js';
 
 import { authMiddleware } from '../middlewares/auth.middleware.js';
+import upload from '../middlewares/multer.middleware.js';
 
 const router = express.Router();
 
@@ -34,9 +37,12 @@ router.get('/getRecipentant/:id', getRecipentant);
 
 router.get('/getUserLogs', authMiddleware, getUserLogs);
 router.get('/getNotifications', authMiddleware, getNotifications);
+
 router.get('/deleteAllNotifications', authMiddleware, deleteAllNotifications);
+router.delete('/deleteUserLog/:id', authMiddleware, deleteUserLog);
 
 router.put('/update', authMiddleware, updateUser);
+router.post('/upload', authMiddleware, upload.single('image'), changeAvatar);
 
 router.get('/bulk', filterUsers);
 
