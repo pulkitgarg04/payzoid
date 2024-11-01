@@ -110,7 +110,7 @@ export const transfer = async (req, res) => {
       });
 
   } catch (error) {
-      console.error('Transfer Error:', error);
+      // console.error('Transfer Error:', error);
       await session.abortTransaction();
       return res.status(500).json({ message: 'Server Error', error: error.message });
 

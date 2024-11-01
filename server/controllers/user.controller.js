@@ -301,6 +301,17 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'User update failed' });
     }
 
+    const userAgent = req.headers['user-agent'];
+    const detectedDevice = detector.detect(userAgent);
+
+    await userLog.create({
+      userId: req.userId,
+      activityType: 'Updated Profile',
+      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
+      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
+      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    });
+
     const { password: _, ...userResponse } = updatedUser.toObject();
 
     res.status(200).json({ message: 'User updated successfully', user: userResponse });
@@ -346,6 +357,17 @@ export const changeAvatar = async (req, res) => {
         message: "User not found",
       });
     }
+
+    const userAgent = req.headers['user-agent'];
+    const detectedDevice = detector.detect(userAgent);
+
+    await userLog.create({
+      userId: req.userId,
+      activityType: 'Avatar Change',
+      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
+      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
+      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    });
 
     return res.status(200).json({
       success: true,

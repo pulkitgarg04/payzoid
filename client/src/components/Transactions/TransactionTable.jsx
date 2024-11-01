@@ -44,7 +44,7 @@ function TransactionTable({ transactions }) {
                         </select>
                     </div>
                 </div>
-                <div className="mx-10 bg-white shadow-lg rounded-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="mx-10 mb-10 bg-white shadow-lg rounded-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-3">
                         <div className="overflow-x-auto">
                             {sortedTransactions.length > 0 ? (

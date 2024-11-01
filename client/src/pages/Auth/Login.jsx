@@ -30,6 +30,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { user, login, isAuthenticated } = useAuthStore();
@@ -40,11 +41,14 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       const loginSuccess = await login(email, password);
   
       if (loginSuccess && isAuthenticated) {
         if (user?.isVerified) {
+          toast.dismiss();
           toast.success("Signed in successfully! Redirecting...");
           setTimeout(() => navigate("/dashboard"), 1500);
         } else {
@@ -55,6 +59,8 @@ function Login() {
     } catch (error) {
       console.error('Login failed:', error);
       toast.error(error.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,12 +116,22 @@ function Login() {
           </div>
 
           <div>
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-            >
-              Sign in
-            </button>
+            {loading ? (
+              <button
+                type="button"
+                disabled
+                className="flex w-full justify-center rounded-md bg-gray-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm cursor-not-allowed"
+              >
+                Logging in...
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+              >
+                Sign in
+              </button>
+            )}
           </div>
         </form>
 

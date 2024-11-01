@@ -82,7 +82,7 @@ function Sidebar() {
                             Withdraw / Deposit
                             <span className="px-2 py-0.5 ml-3 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
                         </SidebarItem>
-                        <SidebarItem icon={<AiOutlineMessage />}>
+                        <SidebarItem to="/dashboard/message" icon={<AiOutlineMessage />}>
                             Messages
                             <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
                         </SidebarItem>

@@ -84,18 +84,21 @@ function Profile() {
         formData.append('image', file);
 
         try {
+            toast.loading("Uploading avatar...");
             setUploading(true);
             const token = localStorage.getItem('token');
             const response = await axios.post(`${API_URL}/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`, // Add auth token if needed
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
-            setAvatar(response.data.user.avatar); // Update avatar with response
+            setAvatar(response.data.user.avatar);
+            toast.dismiss();
             toast.success("Avatar updated successfully!");
         } catch (error) {
+            toast.dismiss();
             toast.error(error.response?.data?.message || "Failed to upload avatar.");
         } finally {
             setUploading(false);

@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 function SendMoney() {
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [recipient, setRecipient] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -38,23 +39,24 @@ function SendMoney() {
     }, [id]);
 
     const handleSubmit = async () => {
+        const loadingToastId = toast.loading('Processing transfer...');
+        setIsLoading(true);
+
         if (!amount || amount <= 0) {
+            toast.dismiss(loadingToastId);
             toast.error('Please enter a valid amount.');
             return;
         }
 
         if (amount > user.balance) {
+            toast.dismiss(loadingToastId);
             toast.error('Insufficient balance.');
             return;
         }
 
-        if (!recipient) {
+        if (!recipient || !recipient._id) {
+            toast.dismiss(loadingToastId);
             toast.error('Recipient not found.');
-            return;
-        }
-
-        if (!recipient._id) {
-            toast.error('Recipient ID is undefined.');
             return;
         }
 
@@ -83,11 +85,15 @@ function SendMoney() {
 
             setAmount('');
             setNote('');
+            setIsLoading(false);
+            toast.dismiss(loadingToastId);
             toast.success('Transfer successful!');
+
             setTimeout(() => {
                 navigate('/dashboard');
             }, 2000);
         } catch (error) {
+            toast.dismiss(loadingToastId);
             toast.error(error.message || 'Something went wrong');
         }
     };
@@ -170,11 +176,11 @@ function SendMoney() {
                                     <div className="flex items-center gap-x-[10px] bg-neutral-100 p-3 mt-2 rounded-[4px] dark:bg-gray-700">
                                         <div className="rounded-full flex justify-center items-center bg-slate-200 h-14 w-14 dark:bg-slate-600">
                                             <div>
-                                            <img
-                                                className='rounded-full'
-                                                src={recipient.avatar || `https://ui-avatars.com/api/?name=${recipient.firstName}`}
-                                                alt="avatar"
-                                            />
+                                                <img
+                                                    className='rounded-full'
+                                                    src={recipient.avatar || `https://ui-avatars.com/api/?name=${recipient.firstName}`}
+                                                    alt="avatar"
+                                                />
                                             </div>
                                         </div>
                                         <div>
@@ -188,12 +194,21 @@ function SendMoney() {
                                 )}
                             </div>
 
-                            <div
-                                className="w-full cursor-pointer rounded-[4px] bg-gray-700 mt-8 px-3 py-[10px] text-center font-semibold text-white hover:bg-gray-600 dark:bg-indigo-600 dark:hover:bg-indigo-500"
-                                onClick={handleSubmit}
-                            >
-                                Send Payment
-                            </div>
+                            {
+                                isLoading ? (
+                                    <div className="w-full cursor-not-allowed rounded-[4px] bg-gray-700 mt-8 px-3 py-[10px] text-center font-semibold text-white dark:bg-indigo-600">
+                                        Processing...
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="w-full cursor-pointer rounded-[4px] bg-indigo-600 mt-8 px-3 py-[10px] text-center font-semibold text-white hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                                        onClick={handleSubmit}
+                                    >
+                                        Send Money
+                                    </div>
+                                )
+                            }
+
                         </div>
                     </div>
                 </div>
