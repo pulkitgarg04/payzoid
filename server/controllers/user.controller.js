@@ -247,6 +247,7 @@ export const getRecipentant = async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      avatar: user.avatar,
       _id: user._id,
     };
 
@@ -311,7 +312,9 @@ export const updateUser = async (req, res) => {
 
 export const changeAvatar = async (req, res) => {
   try {
-    if (!req.file) {
+    const { file } = req;
+
+    if (!file) {
       return res.status(400).json({
         success: false,
         message: "No image data provided",
@@ -319,30 +322,37 @@ export const changeAvatar = async (req, res) => {
     }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(req.file.mimetype)) {
+    if (!allowedTypes.includes(file.mimetype)) {
       return res.status(400).json({
         success: false,
         message: "Invalid file type. Only JPEG, PNG, and GIF are allowed.",
       });
     }
 
-    const result = await cloudinary.uploader.upload_stream({
-      folder: 'payzoid/avatars',
-      resource_type: 'image',
-    }, (error, result) => {
-      if (error) {
-        return res.status(500).json({
-          success: false,
-          message: "Error uploading image to Cloudinary.",
-        });
-      }
-      return res.status(200).json({
-        success: true,
-        message: "Uploaded!",
-        data: {
-          url: result.secure_url,
-        },
+    const result = await cloudinary.uploader.upload(file.path, {
+        folder: 'payzoid/avatars',
+        resource_type: 'image',
+    });
+
+    const user = await User.findOneAndUpdate(
+      { _id: req.userId },
+      { avatar: result.secure_url },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Avatar updated successfully",
+      user: {
+        avatar: user.avatar,
+      },
     });
   } catch (err) {
     console.error("Error uploading image:", err);
@@ -383,6 +393,7 @@ export const filterUsers = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         _id: user._id,
+        avatar: user.avatar,
       })),
     });
   } catch (error) {

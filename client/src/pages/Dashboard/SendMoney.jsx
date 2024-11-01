@@ -148,7 +148,13 @@ function SendMoney() {
                                 <div className="font-semibold text-gray-800 dark:text-gray-300">From</div>
                                 <div className="flex items-center gap-x-[10px] bg-neutral-100 p-3 mt-2 rounded-[4px] dark:bg-gray-700">
                                     <div className="rounded-full flex justify-center items-center bg-slate-200 h-14 w-14 dark:bg-slate-600">
-                                        <div className="dark:text-white"> {name[0]}</div>
+                                        <div>
+                                            <img
+                                                className='rounded-full'
+                                                src={user.avatar || `https://ui-avatars.com/api/?name=${name}`}
+                                                alt="avatar"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <div className="font-semibold dark:text-white">{name}</div>
@@ -163,7 +169,13 @@ function SendMoney() {
                                 {recipient ? (
                                     <div className="flex items-center gap-x-[10px] bg-neutral-100 p-3 mt-2 rounded-[4px] dark:bg-gray-700">
                                         <div className="rounded-full flex justify-center items-center bg-slate-200 h-14 w-14 dark:bg-slate-600">
-                                            <div className="dark:text-white">{recipient.firstName[0]}</div>
+                                            <div>
+                                            <img
+                                                className='rounded-full'
+                                                src={recipient.avatar || `https://ui-avatars.com/api/?name=${recipient.firstName}`}
+                                                alt="avatar"
+                                            />
+                                            </div>
                                         </div>
                                         <div>
                                             <div className="font-semibold dark:text-white">{recipient.firstName} {recipient.lastName}</div>

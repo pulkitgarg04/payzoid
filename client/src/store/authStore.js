@@ -12,15 +12,6 @@ const handleError = (error) => {
   return error.message || "An unexpected error occurred.";
 };
 
-const convertToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
 export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
@@ -166,34 +157,6 @@ export const useAuthStore = create((set) => ({
       set({ user: response.data.user, isLoading: false });
       return true;
     } catch (error) {
-      const errorMessage = handleError(error);
-      set({ error: errorMessage, isLoading: false });
-      throw new Error(errorMessage);
-    }
-  },
-
-  changeAvatar: async (file) => {
-    set({ isLoading: true, error: null });
-
-    try {
-      const base64 = await convertToBase64(file);
-
-      const response = await axios.post(av
-        `${API_URL}/upload`,
-        {
-          image: base64,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      const avatarUrl = response.data.data.url;
-        set({ user: { ...response.data.user, avatar: avatarUrl }, isLoading: false });
-    } catch (error) {
-      console.error("Error uploading image:", error);
       const errorMessage = handleError(error);
       set({ error: errorMessage, isLoading: false });
       throw new Error(errorMessage);

@@ -87,7 +87,11 @@ function TransactionTable({ transactions }) {
                                                     <div className="flex items-center">
                                                         <div className="w-10 h-10 flex-shrink-0 mr-2 sm:mr-3">
                                                             <div className="rounded-full flex justify-center items-center bg-slate-200 h-10 w-10 dark:bg-slate-700">
-                                                                <div>{transaction.counterpartName[0]}</div>
+                                                                <img
+                                                                    className="rounded-full h-8 w-8 object-cover"
+                                                                    src={transaction.counterpartAvatar || `https://ui-avatars.com/api/?name=${transaction.counterpartName}`}
+                                                                    alt="avatar"
+                                                                />
                                                             </div>
                                                         </div>
                                                         <div className="font-medium text-gray-800 dark:text-gray-200">{transaction.counterpartName}</div>

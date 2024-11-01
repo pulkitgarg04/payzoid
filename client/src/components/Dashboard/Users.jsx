@@ -20,7 +20,11 @@ function User({ user }) {
     <div className="flex justify-between items-center font-medium bg-white dark:bg-gray-900">
       <div className="flex items-center mt-6">
         <div className="rounded-full flex justify-center items-center cursor-pointer bg-slate-200 dark:bg-slate-600 h-11 w-11">
-          <div className="dark:text-white">{user.firstName[0]}</div>
+          <img
+            className='rounded-full'
+            src={user.avatar || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=random&color=fff`}
+            alt="avatar"
+          />
         </div>
         <div>
           <div className="pl-4 text-lg text-gray-800 dark:text-gray-300">

@@ -138,6 +138,7 @@ export const getLatestTransactions = async (req, res) => {
         ...transaction._doc,
         counterpartName: counterpartUser ? `${counterpartUser.firstName} ${counterpartUser.lastName}` : 'Unknown',
         counterpartEmail: counterpartUser ? counterpartUser.email : 'Unknown',
+        counterpartAvatar: counterpartUser ? counterpartUser.avatar : '',
         transactionType: isSent ? 'Sent' : 'Received',
         amount: transaction.transaction,
       };

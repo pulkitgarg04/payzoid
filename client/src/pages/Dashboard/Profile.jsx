@@ -5,6 +5,7 @@ import Appbar from '../../components/Dashboard/Appbar';
 import { useAuthStore } from '../../store/authStore';
 import { FaRegEdit } from "react-icons/fa";
 import { MdCameraAlt } from "react-icons/md";
+import axios from 'axios';
 
 const InputField = ({ label, value, onChange, name }) => (
     <div className="flex flex-col">
@@ -38,7 +39,7 @@ function EditButton({ onEdit }) {
 }
 
 function Profile() {
-    const { user, changeAvatar, updateUser } = useAuthStore();
+    const { user, updateUser } = useAuthStore();
     const name = `${user.firstName} ${user.lastName}`;
     const defaultAvatar = `https://ui-avatars.com/api/?name=${name}`;
 
@@ -65,30 +66,39 @@ function Profile() {
         }));
     };
 
-    const [image, setImage] = useState(user.avatar || defaultAvatar);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [avatar, setAvatar] = useState(user.avatar || defaultAvatar);
+    const [uploading, setUploading] = useState(false);
+    const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/v1/user`;
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        if (file) {
-            changeAvatar(file);
-        } else {
-            console.error("No file selected");
-        }
-    };
+        if (!file) return;
 
-    const uploadImage = async (file) => {
+        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only JPEG, PNG, and GIF formats are allowed.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append('image', file);
 
         try {
-            const response = await changeAvatar(formData);
-            if (response) {
-                setImage(URL.createObjectURL(file));
-                toast.success('Image uploaded successfully!');
-            }
+            setUploading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.post(`${API_URL}/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`, // Add auth token if needed
+                },
+            });
+
+            setAvatar(response.data.user.avatar); // Update avatar with response
+            toast.success("Avatar updated successfully!");
         } catch (error) {
-            toast.error('Failed to upload image');
+            toast.error(error.response?.data?.message || "Failed to upload avatar.");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -126,7 +136,7 @@ function Profile() {
                                     <div className='relative'>
                                         <img
                                             className="inline-block shrink-0 w-[62px] h-[62px] rounded-full"
-                                            src={image}
+                                            src={avatar}
                                             alt="Avatar"
                                         />
                                         <label className="absolute bottom-0 right-0 cursor-pointer bg-gray-50 rounded-full">
