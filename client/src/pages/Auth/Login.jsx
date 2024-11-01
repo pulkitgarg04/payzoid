@@ -45,11 +45,11 @@ function Login() {
   
       if (loginSuccess && isAuthenticated) {
         if (user?.isVerified) {
-          toast.success("Redirecting to dashboard...");
-          setTimeout(() => navigate("/dashboard"), 2000);
+          toast.success("Signed in successfully! Redirecting...");
+          setTimeout(() => navigate("/dashboard"), 1500);
         } else {
           toast("Please verify your email!", { icon: '⚠️' });
-          setTimeout(() => navigate("/verify-email"), 2000);
+          setTimeout(() => navigate("/verify-email"), 1500);
         }
       }
     } catch (error) {

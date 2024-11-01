@@ -1,6 +1,7 @@
 import { User } from '../models/user.model.js';
 import { Account } from '../models/account.model.js';
 import { userLog } from '../models/userLog.model.js';
+import { Notification } from '../models/notifications.model.js';
 import {
   signUpSchema,
   signinSchema,
@@ -244,7 +245,6 @@ export const getRecipentant = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  console.log('Received update request with body:', req.body);
   try {
     const {
       firstName,
@@ -331,6 +331,31 @@ export const filterUsers = async (req, res) => {
     });
   } catch (error) {
     return res.status(401).json({ message: 'Server Error' });
+  }
+};
+
+export const getNotifications = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const notifications = await Notification.find({ userId }).sort({ timestamp: -1 });
+    res.status(200).json({
+      success: true,
+      notifications
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+export const deleteAllNotifications = async (req, res) => {
+  try {
+    const userId = req.userId;
+    await Notification.deleteMany({ userId });
+    res.status(200).json({ message: 'Cleared all notifications deleted successfully' });
+  } catch (error) {
+    console.error('Server error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 

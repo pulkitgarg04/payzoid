@@ -1,12 +1,14 @@
-import { Link } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import { toast } from "react-hot-toast";
-import { FaHome, FaInbox } from "react-icons/fa";
-import { AiOutlineTransaction, AiOutlineMessage } from "react-icons/ai";
-import { PiHandWithdrawFill } from "react-icons/pi";
-import { IoIosNotificationsOutline, IoMdSettings, IoIosLogOut } from "react-icons/io";
-import { TbLogs } from "react-icons/tb";
-import { CgProfile } from "react-icons/cg";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
+import { toast } from 'react-hot-toast';
+import { FaHome, FaInbox } from 'react-icons/fa';
+import { AiOutlineTransaction, AiOutlineMessage } from 'react-icons/ai';
+import { PiHandWithdrawFill } from 'react-icons/pi';
+import { IoIosNotificationsOutline, IoMdSettings, IoIosLogOut } from 'react-icons/io';
+import { TbLogs } from 'react-icons/tb';
+import { CgProfile } from 'react-icons/cg';
+import NotificationModal from './NotificationModal';
 
 const SidebarItem = ({ to, icon, children, onClick }) => (
     <li>
@@ -59,6 +61,12 @@ function Sidebar() {
         );
     };
 
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+    const toggleNotificationPanel = () => {
+        setIsNotificationOpen((prev) => !prev);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-300">
             <div className="fixed top-0 left-0 w-64 bg-white dark:bg-gray-900 h-full border-r dark:border-gray-700">
@@ -82,9 +90,9 @@ function Sidebar() {
                             Messages
                             <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
                         </SidebarItem>
-                        <SidebarItem icon={<IoIosNotificationsOutline />}>
+                        <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>
                             Notifications
-                            <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
+                            <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">New</span>
                         </SidebarItem>
                         <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>
 
@@ -95,6 +103,7 @@ function Sidebar() {
                     </ul>
                 </div>
             </div>
+            <NotificationModal isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
         </div>
     );
 }

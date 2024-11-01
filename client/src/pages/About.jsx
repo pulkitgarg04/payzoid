@@ -89,7 +89,7 @@ const About = () => {
                         <motion.div
                             initial={{ opacity: 0, x: 50 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="border-4 border-gray-800 dark:border-gray-200 rounded-lg shadow-lg w-2/3 overflow-hidden"
+                            className="border-2 border-gray-800 dark:border-gray-200 rounded-lg shadow-lg w-2/3 overflow-hidden"
                         >
                             <img
                                 src="dashboard.png"

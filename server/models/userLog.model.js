@@ -10,6 +10,9 @@ const userLogSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  transactionId: {
+    type: String,
+  },
   os: {
     type: String,
   },

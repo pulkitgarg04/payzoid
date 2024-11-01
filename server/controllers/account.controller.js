@@ -3,7 +3,11 @@ import { Account } from '../models/account.model.js';
 import { User } from '../models/user.model.js';
 import { Transaction } from '../models/transactions.model.js';
 import { userLog } from '../models/userLog.model.js';
+import { Notification } from '../models/notifications.model.js';
 import { v4 as uuidv4 } from 'uuid';
+import DeviceDetector from 'node-device-detector';
+
+const detector = new DeviceDetector();
 
 export const balance = async (req, res) => {
   try {
@@ -18,7 +22,6 @@ export const balance = async (req, res) => {
     return res.status(401).json({ message: 'Server Error' });
   }
 };
-
 
 export const transfer = async (req, res) => {
   const session = await mongoose.startSession();
@@ -75,6 +78,28 @@ export const transfer = async (req, res) => {
       });
 
       await transaction.save({ session });
+
+      const notification = new Notification({
+        userId: to,
+        title: "Money Transfer Received",
+        message: `You have received $${amount} from ${req.userId}.`,
+        type: "transfer",
+      });
+  
+      await notification.save({ session });
+
+      const userAgent = req.headers['user-agent'];
+      const detectedDevice = detector.detect(userAgent);  
+
+      await userLog.create([{
+        userId: req.userId,
+        activityType: 'Money Transfer',
+        transactionId: transaction.transactionId,
+        os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
+        browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
+        device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+      }], { session });
+      
       await session.commitTransaction();
 
       const updatedAccount = await Account.findOne({ userId: req.userId });

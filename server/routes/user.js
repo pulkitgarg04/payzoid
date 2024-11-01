@@ -12,6 +12,8 @@ import {
   filterUsers,
   getRecipentant,
   updateUser,
+  getNotifications,
+  deleteAllNotifications,
 } from '../controllers/user.controller.js';
 
 import { authMiddleware } from '../middlewares/auth.middleware.js';
@@ -31,6 +33,8 @@ router.get('/getUserData', authMiddleware, getUser);
 router.get('/getRecipentant/:id', getRecipentant);
 
 router.get('/getUserLogs', authMiddleware, getUserLogs);
+router.get('/getNotifications', authMiddleware, getNotifications);
+router.get('/deleteAllNotifications', authMiddleware, deleteAllNotifications);
 
 router.put('/update', authMiddleware, updateUser);
 

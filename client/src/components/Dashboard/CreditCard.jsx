@@ -1,10 +1,9 @@
-function CreditCard({ fullname}) {
+function CreditCard({ fullname }) {
     return (
-        <div className="relative h-48 w-80 rounded-xl bg-gradient-to-r from-purple-800 
-    to-blue-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96">
+        <div className="relative h-48 w-80 rounded-xl bg-gradient-to-r from-purple-800 to-blue-400 text-white shadow-2xl transition-transform sm:h-56 sm:w-96">
             <div className="absolute top-4 w-full px-8 sm:top-8">
                 <div className="flex justify-between">
-                    <div className="">
+                    <div>
                         <p className="font-light">Full Name</p>
                         <p className="font-medium tracking-widest">{fullname}</p>
                     </div>
@@ -16,16 +15,16 @@ function CreditCard({ fullname}) {
                 </div>
                 <div className="pt-4 pr-6 sm:pt-6">
                     <div className="flex justify-between">
-                        <div className="">
+                        <div>
                             <p className="text-xs font-light">Valid From</p>
                             <p className="text-base font-medium tracking-widest">10/24</p>
                         </div>
-                        <div className="">
+                        <div>
                             <p className="text-xs font-light">Expiry</p>
                             <p className="text-base font-medium tracking-widest">10/34</p>
                         </div>
 
-                        <div className="">
+                        <div>
                             <p className="text-xs font-light">CVV</p>
                             <p className="tracking-more-wider text-sm font-bold">5XX</p>
                         </div>

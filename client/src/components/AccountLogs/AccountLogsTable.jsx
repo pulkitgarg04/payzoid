@@ -18,7 +18,7 @@ function AccountLogsTable({ logs }) {
 
     return (
         <div className="flex flex-col justify-center">
-            <div className="mx-10 bg-white shadow-lg rounded-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <div className="mx-10 mb-10 bg-white shadow-lg rounded-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                 <div className="p-3">
                     <div className="overflow-x-auto">
                         {sortedLogs.length > 0 ? (
@@ -27,6 +27,7 @@ function AccountLogsTable({ logs }) {
                                     <tr>
                                         <th className="p-2 whitespace-nowrap">Date & Time</th>
                                         <th className="p-2 whitespace-nowrap">Activity Type</th>
+                                        <th className="p-2 whitespace-nowrap">Transaction Id</th>
                                         <th className="p-2 whitespace-nowrap">Operating System</th>
                                         <th className="p-2 whitespace-nowrap">Browser</th>
                                         <th className="p-2 whitespace-nowrap">Device</th>
@@ -37,6 +38,7 @@ function AccountLogsTable({ logs }) {
                                         <tr key={idx}>
                                             <td className="p-2 text-center">{new Date(log.timestamp).toLocaleString()}</td>
                                             <td className="p-2 text-center">{log.activityType}</td>
+                                            <td className="p-2 text-center">{log.transactionId || '-'}</td>
                                             <td className="p-2 text-center">{log.os || 'N/A'}</td>
                                             <td className="p-2 text-center">{log.browser || 'N/A'}</td>
                                             <td className="p-2 text-center">{log.device || 'N/A'}</td>

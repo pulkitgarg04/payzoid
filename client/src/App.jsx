@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
 
   if (isCheckingAuth) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (!isAuthenticated) {
@@ -60,8 +60,8 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           
-          <Route path="/signup" element={<RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser>} />
-          <Route path="/login" element={<RedirectAuthenticatedUser><Login /></RedirectAuthenticatedUser>} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/reset-password/:token" element={<RedirectAuthenticatedUser><ResetPasswordPage /></RedirectAuthenticatedUser>} />
 
