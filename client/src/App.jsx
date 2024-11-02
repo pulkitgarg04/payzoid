@@ -4,6 +4,7 @@ import { Suspense, lazy, useEffect } from "react";
 import { useAuthStore } from "./store/authStore.js";
 import Loading from "./components/Loading.jsx";
 import Messages from "./pages/Dashboard/Messages.jsx";
+import RequestMoney from "./pages/Dashboard/RequestMoney.jsx";
 
 const Home = lazy(() => import("./pages/Home"));
 const Signup = lazy(() => import("./pages/Auth/Signup"));
@@ -70,6 +71,7 @@ function App() {
           <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/dashboard/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
           <Route path="/dashboard/send/:id" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
+          <Route path="/dashboard/request/:id" element={<ProtectedRoute><RequestMoney /></ProtectedRoute>} />
           <Route path="/dashboard/message" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
           <Route path="/dashboard/account-logs" element={<ProtectedRoute><AccountLogs /></ProtectedRoute>} />
         </Routes>

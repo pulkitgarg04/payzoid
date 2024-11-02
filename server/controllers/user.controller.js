@@ -273,11 +273,11 @@ export const updateUser = async (req, res) => {
 
     const { success, error } = updateUserSchema.safeParse(req.body);
     if (!success) {
-        console.log('Validation errors:', error.flatten());
-        return res.status(400).json({ 
-            message: 'Invalid Inputs', 
-            errors: error.flatten()
-        });
+      console.log('Validation errors:', error.flatten());
+      return res.status(400).json({
+        message: 'Invalid Inputs',
+        errors: error.flatten()
+      });
     }
 
     const updateFields = {};
@@ -290,6 +290,20 @@ export const updateUser = async (req, res) => {
     if (city) updateFields.city = city;
     if (postalcode) updateFields.postalcode = postalcode;
     if (taxid) updateFields.taxid = taxid;
+
+    const existingUser = await User.findById(req.userId);
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isDefaultAvatar = existingUser.avatar?.includes('https://avatar.iran.liara.run/public/');
+    if (!existingUser.avatar || isDefaultAvatar) {
+      if (gender === 'Male') {
+        updateFields.avatar = `https://avatar.iran.liara.run/public/boy`;
+      } else if (gender === 'Female') {
+        updateFields.avatar = `https://avatar.iran.liara.run/public/girl`;
+      }
+    }
 
     const updatedUser = await User.findOneAndUpdate(
       { _id: req.userId },
@@ -320,6 +334,7 @@ export const updateUser = async (req, res) => {
     return res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+
 
 export const changeAvatar = async (req, res) => {
   try {
