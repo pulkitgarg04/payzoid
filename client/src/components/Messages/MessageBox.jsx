@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from '../../components/ThemeToggle';
 import { Link } from 'react-router-dom';
+import { IoSend } from "react-icons/io5";
 
 function Message({ isSender, text, avatarSrc }) {
     return (
@@ -10,7 +11,7 @@ function Message({ isSender, text, avatarSrc }) {
                     <img src={avatarSrc} alt="User Avatar" className="w-8 h-8 rounded-full" />
                 </div>
             )}
-            <div className={`flex max-w-96 ${isSender ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200'} rounded-lg p-3 gap-3`}>
+            <div className={`flex flex-wrap max-w-96 ${isSender ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200'} rounded-lg p-3 gap-3`}>
                 <p>{text}</p>
             </div>
             {isSender && (
@@ -31,7 +32,20 @@ function MessageBox({ selectedUser }) {
             if (!selectedUser.avatar) selectedUser.avatar = 'https://avatar.iran.liara.run/public';
             setMessages([
                 { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' }
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
+                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
             ]);
         }
     }, [selectedUser]);
@@ -66,14 +80,14 @@ function MessageBox({ selectedUser }) {
 
             <footer className="bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 p-4">
                 <div className="flex items-center">
-                    <Link to={`/dashboard/request/${selectedUser._id}`}>
-                    <button onClick={handleSendMessage} className="bg-indigo-500 text-white px-4 py-2 rounded-md">
-                        Request
-                    </button>
-                    </Link>
                     <Link to={`/dashboard/send/${selectedUser._id}`}>
-                        <button className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2">
+                        <button className="py-2 px-4 text-sm font-medium rounded-lg border border-transparent bg-blue-200 text-blue-800 hover:bg-blue-300 focus:outline-none focus:bg-blue-300 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-300 dark:bg-blue-800/70 dark:hover:bg-blue-800/40 dark:focus:bg-blue-800/40">
                             Pay
+                        </button>
+                    </Link>
+                    <Link to={`/dashboard/request/${selectedUser._id}`}>
+                        <button className="py-2 px-4 ml-2 text-sm font-medium rounded-lg border border-transparent bg-blue-200 text-blue-800 hover:bg-blue-300 focus:outline-none focus:bg-blue-300 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-300 dark:bg-blue-800/70 dark:hover:bg-blue-800/40 dark:focus:bg-blue-800/40">
+                            Request
                         </button>
                     </Link>
                     <input
@@ -81,10 +95,10 @@ function MessageBox({ selectedUser }) {
                         placeholder="Type a message..."
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="w-full ml-2 p-2 rounded-md border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
-                        />
-                    <button onClick={handleSendMessage} className="bg-indigo-500 text-white px-4 py-2 rounded-md ml-2">
-                        Send
+                        className="w-full ml-2 px-4 py-2 rounded-md border border-gray-400 dark:border-gray-600 focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                    />
+                    <button onClick={handleSendMessage} className="p-2.5 ml-2 rounded-full border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                        <IoSend />
                     </button>
                 </div>
             </footer>

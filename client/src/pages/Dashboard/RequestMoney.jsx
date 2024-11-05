@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import Sidebar from '../../components/Dashboard/Sidebar';
 import Appbar from '../../components/Dashboard/Appbar';
 import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 function RequestMoney() {
@@ -12,7 +12,7 @@ function RequestMoney() {
     const [isLoading, setIsLoading] = useState(false);
     const [recipient, setRecipient] = useState(null);
     const { id } = useParams();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const { user } = useAuthStore();
     const name = `${user.firstName} ${user.lastName}`;
@@ -39,63 +39,65 @@ function RequestMoney() {
     }, [id]);
 
     const handleSubmit = async () => {
-        const loadingToastId = toast.loading('Processing transfer...');
-        setIsLoading(true);
+        // const loadingToastId = toast.loading('Processing transfer...');
+        // setIsLoading(true);
 
-        if (!amount || amount <= 0) {
-            toast.dismiss(loadingToastId);
-            toast.error('Please enter a valid amount.');
-            return;
-        }
+        // if (!amount || amount <= 0) {
+        //     toast.dismiss(loadingToastId);
+        //     toast.error('Please enter a valid amount.');
+        //     return;
+        // }
 
-        if (amount > user.balance) {
-            toast.dismiss(loadingToastId);
-            toast.error('Insufficient balance.');
-            return;
-        }
+        // if (amount > user.balance) {
+        //     toast.dismiss(loadingToastId);
+        //     toast.error('Insufficient balance.');
+        //     return;
+        // }
 
-        if (!recipient || !recipient._id) {
-            toast.dismiss(loadingToastId);
-            toast.error('Recipient not found.');
-            return;
-        }
+        // if (!recipient || !recipient._id) {
+        //     toast.dismiss(loadingToastId);
+        //     toast.error('Recipient not found.');
+        //     return;
+        // }
 
-        try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/account/transfer`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    amount: parseFloat(amount),
-                    to: recipient._id,
-                    note: note || '',
-                }),
-            });
+        // try {
+        //     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/account/transfer`, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             amount: parseFloat(amount),
+        //             to: recipient._id,
+        //             note: note || '',
+        //         }),
+        //     });
 
-            const data = await response.json();
+        //     const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to transfer money');
-            }
+        //     if (!response.ok) {
+        //         throw new Error(data.message || 'Failed to transfer money');
+        //     }
 
-            const newBalance = user.balance - parseFloat(amount);
-            useAuthStore.setState({ user: { ...user, balance: newBalance } });
+        //     const newBalance = user.balance - parseFloat(amount);
+        //     useAuthStore.setState({ user: { ...user, balance: newBalance } });
 
-            setAmount('');
-            setNote('');
-            setIsLoading(false);
-            toast.dismiss(loadingToastId);
-            toast.success('Transfer successful!');
+        //     setAmount('');
+        //     setNote('');
+        //     setIsLoading(false);
+        //     toast.dismiss(loadingToastId);
+        //     toast.success('Transfer successful!');
 
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 2000);
-        } catch (error) {
-            toast.dismiss(loadingToastId);
-            toast.error(error.message || 'Something went wrong');
-        }
+        //     setTimeout(() => {
+        //         navigate('/dashboard');
+        //     }, 2000);
+        // } catch (error) {
+        //     toast.dismiss(loadingToastId);
+        //     toast.error(error.message || 'Something went wrong');
+        // }
+
+        toast.error("This feature is not available currently!");
     };
 
     return (
@@ -123,17 +125,6 @@ function RequestMoney() {
                                 />
                             </div>
 
-                            <div className="mt-6">
-                                <div className="font-semibold text-gray-800 dark:text-gray-300">Payment Method</div>
-                                <div className="flex items-center gap-x-[10px] bg-neutral-100 p-3 mt-2 rounded-[4px] dark:bg-gray-700">
-                                    <img className="h-8" src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Card" />
-                                    <div className='pl-2'>
-                                        <div className="font-semibold dark:text-gray-200">Debit Card</div>
-                                        <div className="text-[#64748B]">7864 **** **** ****</div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div>
                                 <div className="font-semibold mt-4 text-gray-800 dark:text-gray-300">Note</div>
                                 <textarea
@@ -143,6 +134,22 @@ function RequestMoney() {
                                     onChange={(e) => setNote(e.target.value)}
                                 />
                             </div>
+
+                            
+                            {
+                                isLoading ? (
+                                    <div className="w-full cursor-not-allowed rounded-[4px] bg-gray-700 mt-8 px-3 py-[10px] text-center font-semibold text-white dark:bg-indigo-600">
+                                        Processing...
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="w-full cursor-pointer rounded-[4px] bg-indigo-600 mt-8 px-3 py-[10px] text-center font-semibold text-white hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                                        onClick={handleSubmit}
+                                    >
+                                        Request Money
+                                    </div>
+                                )
+                            }
                         </div>
 
                         <div className='w-1/2 m-5 h-full'>
@@ -189,21 +196,6 @@ function RequestMoney() {
                                     <div className="text-center">Loading recipient details...</div>
                                 )}
                             </div>
-
-                            {
-                                isLoading ? (
-                                    <div className="w-full cursor-not-allowed rounded-[4px] bg-gray-700 mt-8 px-3 py-[10px] text-center font-semibold text-white dark:bg-indigo-600">
-                                        Processing...
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="w-full cursor-pointer rounded-[4px] bg-indigo-600 mt-8 px-3 py-[10px] text-center font-semibold text-white hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500"
-                                        onClick={handleSubmit}
-                                    >
-                                        Send Money
-                                    </div>
-                                )
-                            }
 
                         </div>
                     </div>

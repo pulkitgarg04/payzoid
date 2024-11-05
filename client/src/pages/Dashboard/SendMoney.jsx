@@ -208,7 +208,6 @@ function SendMoney() {
                                     </div>
                                 )
                             }
-
                         </div>
                     </div>
                 </div>

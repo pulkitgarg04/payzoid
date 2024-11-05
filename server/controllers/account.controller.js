@@ -79,10 +79,17 @@ export const transfer = async (req, res) => {
 
       await transaction.save({ session });
 
+      const sender = await User.findById(req.userId).select('firstName lastName');
+      const senderName = sender ? `${sender.firstName} ${sender.lastName}` : 'Unknown';
+
+      const notificationMessage = note 
+          ? `You have received Rs. ${amount} from ${senderName}. Note: "${note}"`
+          : `You have received Rs. ${amount} from ${senderName}.`;
+
       const notification = new Notification({
         userId: to,
         title: "Money Transfer Received",
-        message: `You have received $${amount} from ${req.userId}.`,
+        message: notificationMessage,
         type: "transfer",
       });
   
