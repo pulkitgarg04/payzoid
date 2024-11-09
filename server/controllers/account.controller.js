@@ -139,7 +139,7 @@ export const getLatestTransactions = async (req, res) => {
       const isSent = transaction.userId.toString() === req.userId.toString();
       const counterpartId = isSent ? transaction.recipientId : transaction.userId;
 
-      const counterpartUser = await User.findById(counterpartId).select('firstName lastName email');
+      const counterpartUser = await User.findById(counterpartId).select('firstName lastName email avatar');
 
       return {
         ...transaction._doc,

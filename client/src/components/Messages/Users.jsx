@@ -3,7 +3,7 @@ import axios from 'axios'
 
 function User({ user, onClick }) {
     return (
-        <div onClick={() => onClick(user)} className="flex items-center mb-4 cursor-pointer hover:bg-gray-100 p-2 rounded-md dark:hover:bg-gray-800">
+        <div onClick={() => onClick(user)} className="flex items-center mb-4 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md dark:hover:bg-gray-800">
             <div className="w-10 h-10 bg-gray-300 rounded-full mr-3">
                 <img
                     className='rounded-full object-contain'

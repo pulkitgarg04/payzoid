@@ -15,6 +15,7 @@
     "multer": "^1.4.5-lts.1",
     "node-device-detector": "^2.1.5",
     "nodemailer": "^6.9.15",
+    "pdfkit": "^0.15.1",
     "react-device-detect": "^2.2.3",
     "uuid": "^10.0.0",
     "zod": "^3.23.8"

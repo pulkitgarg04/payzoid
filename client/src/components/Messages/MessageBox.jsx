@@ -31,22 +31,16 @@ function MessageBox({ selectedUser }) {
         if (selectedUser) {
             if (!selectedUser.avatar) selectedUser.avatar = 'https://avatar.iran.liara.run/public';
             setMessages([
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: false, text: "Hey, how's it going?", avatarSrc: selectedUser.avatar },
-                { isSender: true, text: "Hi! I'm good. How about you?", avatarSrc: 'https://avatar.iran.liara.run/public/boy' },
-            ]);
+                { isSender: false, text: `Hey Pulkit, how's it going?`, avatarSrc: selectedUser.avatar, time: "10:12 AM" },
+                { isSender: true, text: "Hi! I'm doing great! Just finished a project, feeling good. 😊", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:13 AM" },
+                { isSender: false, text: "That's awesome! What's it about?", avatarSrc: selectedUser.avatar, time: "10:14 AM" },
+                { isSender: true, text: "It's a new feature for our app, improving chat experience!", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:15 AM" },
+                { isSender: false, text: "Wow, sounds useful!", avatarSrc: selectedUser.avatar, time: "10:16 AM" },
+                { isSender: true, text: "Thanks! 😊 What about you? Anything new?", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:17 AM" },
+                { isSender: false, text: "Not much, just planning a trip. Any suggestions?", avatarSrc: selectedUser.avatar, time: "10:18 AM" },
+                { isSender: true, text: "Oh, nice! How about the mountains? Always refreshing!", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:19 AM" },
+                { isSender: false, text: "Hmm, sounds good. Will check it out!", avatarSrc: selectedUser.avatar, time: "10:20 AM" },
+            ]);            
         }
     }, [selectedUser]);
 

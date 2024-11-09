@@ -78,7 +78,6 @@ function Sidebar() {
                         <SidebarSection title="Dashboard" />
                         <SidebarItem to="/dashboard" icon={<FaHome />}>Home</SidebarItem>
                         <SidebarItem to="/dashboard/transactions" icon={<AiOutlineTransaction />}>Transactions</SidebarItem>
-                        <SidebarItem to="/dashboard/transfer" icon={<PiHandWithdrawFill />}>Withdraw / Deposit</SidebarItem>
                         <SidebarItem to="/dashboard/cryptocurrency" icon={<FaBitcoin />}>CryptoCurrency</SidebarItem>
                         <SidebarItem to="/dashboard/message" icon={<AiOutlineMessage />}>Messages</SidebarItem>
                         <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>Notifications</SidebarItem>

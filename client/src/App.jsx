@@ -70,7 +70,6 @@ function App() {
 
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/dashboard/transfer" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
           <Route path="/dashboard/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
           <Route path="/dashboard/send/:id" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
           <Route path="/dashboard/request/:id" element={<ProtectedRoute><RequestMoney /></ProtectedRoute>} />
