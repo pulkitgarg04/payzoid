@@ -48,28 +48,28 @@ function TransactionTable({ transactions }) {
                     <div className="p-3">
                         <div className="overflow-x-auto">
                             {sortedTransactions.length > 0 ? (
-                                <table className="table-auto w-full">
+                                <table className="table-auto w-full table-fixed">
                                     <thead className="text-xs font-semibold uppercase text-gray-400 bg-gray-50 dark:bg-gray-800 dark:text-gray-300">
                                         <tr>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Date & Time</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Transaction ID</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Counterpart Name</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Counterpart Email</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Transaction Type</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Amount</div>
                                             </th>
-                                            <th className="p-2 whitespace-nowrap">
+                                            <th className="p-2">
                                                 <div className="font-semibold text-center">Balance</div>
                                             </th>
                                         </tr>
@@ -77,13 +77,13 @@ function TransactionTable({ transactions }) {
                                     <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-600">
                                         {sortedTransactions.map((transaction) => (
                                             <tr key={transaction._id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center">{new Date(transaction.date).toLocaleString()}</div>
+                                                <td className="p-2 break-words text-center">
+                                                    {new Date(transaction.date).toLocaleString()}
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center">{transaction.transactionId}</div>
+                                                <td className="p-2 break-words text-center">
+                                                    {transaction.transactionId}
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
+                                                <td className="p-2 break-words">
                                                     <div className="flex items-center">
                                                         <div className="w-10 h-10 flex-shrink-0 mr-2 sm:mr-3">
                                                             <div className="rounded-full flex justify-center items-center bg-slate-200 h-10 w-10 dark:bg-slate-700">
@@ -94,22 +94,24 @@ function TransactionTable({ transactions }) {
                                                                 />
                                                             </div>
                                                         </div>
-                                                        <div className="font-medium text-gray-800 dark:text-gray-200">{transaction.counterpartName}</div>
+                                                        <div className="font-medium text-gray-800 dark:text-gray-200 break-words">
+                                                            {transaction.counterpartName}
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center">{transaction.counterpartEmail}</div>
+                                                <td className="p-2 break-words text-center">
+                                                    {transaction.counterpartEmail}
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center">{transaction.transactionType}</div>
+                                                <td className="p-2 break-words text-center">
+                                                    {transaction.transactionType}
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className={`text-center font-medium ${transaction.transactionType === 'Sent' ? 'text-red-500' : 'text-green-500'}`}>
+                                                <td className="p-2 break-words text-center font-medium">
+                                                    <span className={transaction.transactionType === 'Sent' ? 'text-red-500' : 'text-green-500'}>
                                                         Rs. {Math.abs(transaction.amount).toFixed(2)}
-                                                    </div>
+                                                    </span>
                                                 </td>
-                                                <td className="p-2 whitespace-nowrap">
-                                                    <div className="text-center font-medium">Rs. {transaction.balance.toFixed(2)}</div>
+                                                <td className="p-2 break-words text-center font-medium">
+                                                    Rs. {transaction.balance.toFixed(2)}
                                                 </td>
                                             </tr>
                                         ))}

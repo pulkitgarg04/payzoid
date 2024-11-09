@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
-import { FaHome } from 'react-icons/fa';
+import { FaHome, FaBitcoin } from "react-icons/fa";
 import { AiOutlineTransaction, AiOutlineMessage } from 'react-icons/ai';
 import { PiHandWithdrawFill } from 'react-icons/pi';
 import { IoIosNotificationsOutline, IoMdSettings, IoIosLogOut } from 'react-icons/io';
@@ -78,19 +78,13 @@ function Sidebar() {
                         <SidebarSection title="Dashboard" />
                         <SidebarItem to="/dashboard" icon={<FaHome />}>Home</SidebarItem>
                         <SidebarItem to="/dashboard/transactions" icon={<AiOutlineTransaction />}>Transactions</SidebarItem>
-                        <SidebarItem icon={<PiHandWithdrawFill />}>
-                            Withdraw / Deposit
-                            <span className="px-2 py-0.5 ml-3 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
-                        </SidebarItem>
-                        <SidebarItem to="/dashboard/message" icon={<AiOutlineMessage />}>
-                            Messages
-                            <span className="px-2 py-0.5 ml-5 text-xs font-medium tracking-wide text-indigo-500 bg-red-50 dark:bg-gray-600 dark:text-white rounded-full">Soon</span>
-                        </SidebarItem>
+                        <SidebarItem to="/dashboard/transfer" icon={<PiHandWithdrawFill />}>Withdraw / Deposit</SidebarItem>
+                        <SidebarItem to="/dashboard/cryptocurrency" icon={<FaBitcoin />}>CryptoCurrency</SidebarItem>
+                        <SidebarItem to="/dashboard/message" icon={<AiOutlineMessage />}>Messages</SidebarItem>
                         <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>Notifications</SidebarItem>
-                        <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>
-
                         <SidebarSection title="Settings" />
                         <SidebarItem to="/dashboard/profile" icon={<CgProfile />}>Profile</SidebarItem>
+                        <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>
                         <SidebarItem icon={<IoMdSettings />}>Settings</SidebarItem>
                         <SidebarItem icon={<IoIosLogOut />} onClick={handleLogout}>Logout</SidebarItem>
                     </ul>
