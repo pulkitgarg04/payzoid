@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import ThemeToggle from '../../components/ThemeToggle';
 import { Link } from 'react-router-dom';
 import { IoSend } from "react-icons/io5";
 
-function Message({ isSender, text, avatarSrc }) {
+function Message({ isSender, text, avatarSrc, firstName }) {
     return (
         <div className={`flex mb-4 cursor-pointer ${isSender ? 'justify-end' : ''}`}>
             {!isSender && (
                 <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2">
-                    <img src={avatarSrc} alt="User Avatar" className="w-8 h-8 rounded-full" />
+                    <img
+                        src={avatarSrc || `https://avatar.iran.liara.run/username?username=${firstName}`}
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded-full"
+                    />
                 </div>
             )}
             <div className={`flex flex-wrap max-w-96 ${isSender ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200'} rounded-lg p-3 gap-3`}>
@@ -16,41 +21,52 @@ function Message({ isSender, text, avatarSrc }) {
             </div>
             {isSender && (
                 <div className="w-8 h-8 rounded-full flex items-center justify-center ml-2">
-                    <img src={avatarSrc} alt="My Avatar" className="w-8 h-8 rounded-full" />
+                    <img
+                        src={avatarSrc || `https://avatar.iran.liara.run/username?username=${firstName}`}
+                        alt="My Avatar"
+                        className="w-8 h-8 rounded-full"
+                    />
                 </div>
             )}
         </div>
     );
 }
 
-function MessageBox({ selectedUser }) {
+function MessageBox({ selectedUser, currentUserID }) {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
 
     useEffect(() => {
-        if (selectedUser) {
-            if (!selectedUser.avatar) selectedUser.avatar = 'https://avatar.iran.liara.run/public';
-            setMessages([
-                { isSender: false, text: `Hey Pulkit, how's it going?`, avatarSrc: selectedUser.avatar, time: "10:12 AM" },
-                { isSender: true, text: "Hi! I'm doing great! Just finished a project, feeling good. 😊", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:13 AM" },
-                { isSender: false, text: "That's awesome! What's it about?", avatarSrc: selectedUser.avatar, time: "10:14 AM" },
-                { isSender: true, text: "It's a new feature for our app, improving chat experience!", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:15 AM" },
-                { isSender: false, text: "Wow, sounds useful!", avatarSrc: selectedUser.avatar, time: "10:16 AM" },
-                { isSender: true, text: "Thanks! 😊 What about you? Anything new?", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:17 AM" },
-                { isSender: false, text: "Not much, just planning a trip. Any suggestions?", avatarSrc: selectedUser.avatar, time: "10:18 AM" },
-                { isSender: true, text: "Oh, nice! How about the mountains? Always refreshing!", avatarSrc: 'https://avatar.iran.liara.run/public/boy', time: "10:19 AM" },
-                { isSender: false, text: "Hmm, sounds good. Will check it out!", avatarSrc: selectedUser.avatar, time: "10:20 AM" },
-            ]);            
-        }
-    }, [selectedUser]);
+        const fetchMessages = async () => {
+            if (selectedUser) {
+                try {
+                    const response = await axios.get(
+                        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${currentUserID}/${selectedUser._id}`
+                    );
+                    setMessages(response.data.messages);
+                } catch (error) {
+                    console.error("Failed to fetch messages", error);
+                }
+            }
+        };
 
-    const handleSendMessage = () => {
+        fetchMessages();
+    }, [selectedUser, currentUserID]);
+
+    const handleSendMessage = async () => {
         if (newMessage.trim()) {
-            setMessages((prev) => [
-                ...prev,
-                { isSender: true, text: newMessage, avatarSrc: 'https://avatar.iran.liara.run/public/boy' }
-            ]);
-            setNewMessage("");
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`, {
+                    senderId: currentUserID,
+                    recipientId: selectedUser._id,
+                    text: newMessage,
+                });
+
+                setMessages((prev) => [...prev, response.data.data]);
+                setNewMessage("");
+            } catch (error) {
+                console.error("Failed to send message", error);
+            }
         }
     };
 
@@ -60,7 +76,7 @@ function MessageBox({ selectedUser }) {
         <div className="flex flex-col h-screen bg-white dark:bg-gray-900 dark:text-gray-100">
             <header className="bg-white dark:bg-gray-800 p-4 text-gray-700 dark:text-gray-200 flex justify-between">
                 <div className='flex justify-center items-center'>
-                    <img className="w-9 h-9 rounded-full self-center" src={selectedUser.avatar} alt="avatar" />
+                    <img className="w-9 h-9 rounded-full self-center" src={selectedUser.avatar || `https://avatar.iran.liara.run/username?username=${selectedUser.firstName}`} alt="avatar" />
                     <h1 className="ml-5 text-2xl font-semibold">{`${selectedUser.firstName} ${selectedUser.lastName}`}</h1>
                 </div>
                 <ThemeToggle />
@@ -68,7 +84,17 @@ function MessageBox({ selectedUser }) {
 
             <div className="flex-1 overflow-y-auto p-4 max-h-[calc(100vh-140px)] dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
                 {messages.map((msg, index) => (
-                    <Message key={index} isSender={msg.isSender} text={msg.text} avatarSrc={msg.avatarSrc} />
+                    <Message
+                        key={index}
+                        isSender={msg.senderId === currentUserID}
+                        text={msg.text}
+                        firstName={selectedUser.firstName}
+                        avatarSrc={
+                            msg.senderId === currentUserID
+                                ? 'https://avatar.iran.liara.run/public/boy'
+                                : selectedUser.avatar
+                        }
+                    />
                 ))}
             </div>
 

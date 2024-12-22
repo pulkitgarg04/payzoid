@@ -7,6 +7,7 @@ import cors from 'cors';
 
 import userRouter from './routes/user.js';
 import accountRouter from './routes/account.js';
+import messageRouter from './routes/message.js';
 
 const app = express();
 
@@ -41,3 +42,4 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/account', accountRouter);
+app.use('/api/v1/messages', messageRouter);
