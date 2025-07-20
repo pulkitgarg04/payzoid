@@ -9,7 +9,7 @@
 </p>
 
 ### Introduction
-**Payzoid** is a financial application designed to simplify transactions, manage user accounts, and provide an intuitive user experience.
+**Payzoid** is a financial application designed to simplify peer-to-peer (p2p) transactions, manage user accounts, and provide an intuitive wallet management system.
 
 The app allows users to securely send, receive, and track their transactions, along with features like profile management, authentication, and email verification. Payzoid is built with a MERN stack and follows best practices for scalability and security.
 
@@ -55,15 +55,10 @@ The project relies on several environment variables. Create a .env file in both 
 #### For Server:
 ```
 PORT=8080
-
 FRONTEND_URL="http://localhost:5173"
-
 MONGO_URI=your_mongodb_uri
-
 JWT_SECRET=your_jwt_secret
-
 EMAIL=your_email_service
-
 EMAIL_PASSWORD=your_email_service_password
 ```
 
@@ -108,8 +103,13 @@ The frontend of Payzoid is built with React and React Router for navigation. Key
 - **ProtectedRoute & RedirectAuthenticatedUser**: Custom wrappers to secure specific routes.
 - **Toasts**: Notifications for actions using `react-hot-toast`.
 
+### Changelog
+Refer to [CHANGELOG](CHANGELOG.md) for version history and updates.
+
 ### Contributing
 We appreciate your interest in contributing to PayZoid! Your contributions help us improve and grow. Please feel free to submit pull requests, report issues, or suggest new features. Your feedback and participation are highly valued as we continue to develop and enhance the platform.
 
+For detailed guidelines on how to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) file.
+
 ### License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+PayZoid is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
