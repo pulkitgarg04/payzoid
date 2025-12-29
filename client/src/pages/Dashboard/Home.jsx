@@ -21,7 +21,7 @@ const Dashboard = () => {
         </div>
         <div className='my-10'>
           <h2 className='m-8 text-2xl font-bold text-gray-800 dark:text-gray-200'>People</h2>
-          <Users currentUserID={user._id} />
+          <Users currentUserID={user.id} />
         </div>
       </div>
     </div>

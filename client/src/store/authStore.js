@@ -6,8 +6,10 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/v1/user`;
 axios.defaults.withCredentials = true;
 
 const handleError = (error) => {
+  console.error('Auth error details:', error);
   if (axios.isAxiosError(error)) {
-    return error.response?.data?.message || "An unexpected error occurred.";
+    console.error('Axios error response:', error.response?.data);
+    return error.response?.data?.message || error.message || "An unexpected error occurred.";
   }
   return error.message || "An unexpected error occurred.";
 };

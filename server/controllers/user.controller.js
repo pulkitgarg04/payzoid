@@ -1,17 +1,15 @@
-import { User } from '../models/user.model.js';
-import { Account } from '../models/account.model.js';
-import { userLog } from '../models/userLog.model.js';
-import { Notification } from '../models/notifications.model.js';
+import prisma from "../utils/prisma.js";
+import bcrypt from "bcryptjs";
 import {
   signUpSchema,
   signinSchema,
   updateUserSchema,
-} from '../utils/zodSchemas.js';
-import jwt from 'jsonwebtoken';
-import { otpTemplate } from '../utils/mailTemplates/otpVerification.template.js';
-import { mailsender } from '../utils/mailSender.js';
-import DeviceDetector from 'node-device-detector';
-import cloudinary from '../utils/cloudinary.js';
+} from "../utils/zodSchemas.js";
+import jwt from "jsonwebtoken";
+import { otpTemplate } from "../utils/mailTemplates/otpVerification.template.js";
+import { mailsender } from "../utils/mailSender.js";
+import DeviceDetector from "node-device-detector";
+import cloudinary from "../utils/cloudinary.js";
 
 const detector = new DeviceDetector();
 
@@ -20,69 +18,91 @@ export const signup = async (req, res) => {
 
   try {
     if (!email || !password || !firstName || !lastName) {
-			throw new Error("All fields are required");
-		}
+      throw new Error("All fields are required");
+    }
 
     const { success } = signUpSchema.safeParse(req.body);
     if (!success) {
-      return res.status(400).json({ message: 'Invalid Inputs' });
+      return res.status(400).json({ message: "Invalid Inputs" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
     if (existingUser) {
-      return res.status(409).json({ message: 'Email already taken' });
+      return res.status(409).json({ message: "Email already taken" });
     }
 
-    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-    
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const name = `${firstName} ${lastName}`;
     const htmlContent = otpTemplate(verificationToken, name);
-    await mailsender(email, "PayZoid: Here's the verification code you requested", htmlContent);
-
-    const user = new User({
+    await mailsender(
       email,
-      firstName,
-      lastName,
-      verificationToken,
-			verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+      "PayZoid: Here's the verification code you requested",
+      htmlContent
+    );
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        firstName,
+        lastName,
+        password: hashedPassword,
+        verificationToken,
+        verificationTokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
     });
 
-    const hashedPassword = await user.createHash(password);
-    user.password = hashedPassword;
-    await user.save();
-
-    const userId = user._id;
-    const account = await Account.create({
-      userId,
-      balance: Math.floor(Math.random() * 90000) + 10000,
+    const account = await prisma.account.create({
+      data: {
+        userId: user.id,
+        balance: Math.floor(Math.random() * 90000) + 10000,
+      },
     });
 
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET);
-    const userResponse = user.toObject();
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
 
-    userResponse.balance = account.balance;
-    delete userResponse.password;
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isVerified: user.isVerified,
+      balance: parseFloat(account.balance),
+    };
 
-    const userAgent = req.headers['user-agent'];
+    const userAgent = req.headers["user-agent"];
     const detectedDevice = detector.detect(userAgent);
 
-    await userLog.create({
-      userId,
-      activityType: 'Signup',
-      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
-      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
-      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    await prisma.userLog.create({
+      data: {
+        userId: user.id,
+        activityType: "Signup",
+        os: detectedDevice.os ? detectedDevice.os.name : "Unknown OS",
+        browser: detectedDevice.client
+          ? detectedDevice.client.name
+          : "Unknown Browser",
+        device: detectedDevice.device
+          ? detectedDevice.device.type
+          : "Unknown Device",
+      },
     });
 
     return res.status(200).json({
       success: true,
-      message: 'Account created successfully',
+      message: "Account created successfully",
       token,
-      user: userResponse
+      user: userResponse,
     });
   } catch (error) {
-    console.log('Error in signup', error);
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    console.log("Error in signup", error);
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -93,134 +113,212 @@ export const login = async (req, res) => {
     const { success } = signinSchema.safeParse({ email, password });
 
     if (!success) {
-      return res.status(400).json({ message: 'Invalid Inputs' });
+      return res.status(400).json({ message: "Invalid Inputs" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
       return res.status(401).json({ message: "User doesn't exist" });
     }
 
-    const isValidPassword = await user.validatePassword(password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid Credentials' });
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
-    const userId = user._id;
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
 
-    const account = await Account.findOne({ userId });
-    const userResponse = user.toObject();
+    const account = await prisma.account.findUnique({
+      where: { userId: user.id },
+    });
 
-    userResponse.balance = account.balance;
-    delete userResponse.password;
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isVerified: user.isVerified,
+      avatar: user.avatar,
+      balance: account ? parseFloat(account.balance) : 0,
+    };
 
-    const userAgent = req.headers['user-agent'];
+    const userAgent = req.headers["user-agent"];
     const detectedDevice = detector.detect(userAgent);
 
-    await userLog.create({
-      userId,
-      activityType: 'Login',
-      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
-      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
-      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    await prisma.userLog.create({
+      data: {
+        userId: user.id,
+        activityType: "Login",
+        os: detectedDevice.os ? detectedDevice.os.name : "Unknown OS",
+        browser: detectedDevice.client
+          ? detectedDevice.client.name
+          : "Unknown Browser",
+        device: detectedDevice.device
+          ? detectedDevice.device.type
+          : "Unknown Device",
+      },
     });
 
     return res.status(200).json({
       success: true,
-      message: 'Login Successful',
+      message: "Login Successful",
       token,
       user: userResponse,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Server Error' });
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
 export const checkAuth = async (req, res) => {
-	try {
+  try {
     const userId = req.userId;
-		const user = await User.findById(userId).select("-password");
-		if (!user) {
-			return res.status(400).json({ success: false, message: "User not found" });
-		}
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        isVerified: true,
+        avatar: true,
+      },
+    });
 
-    const account = await Account.findOne({ userId });
-    const userResponse = user.toObject();
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
 
-    userResponse.balance = account.balance;
+    const account = await prisma.account.findUnique({
+      where: { userId },
+    });
 
-		res.status(200).json({ success: true, user: userResponse });
-	} catch (error) {
-		console.log("Error in checkAuth ", error);
-		res.status(400).json({ success: false, message: error.message });
-	}
+    const userResponse = {
+      ...user,
+      balance: account ? parseFloat(account.balance) : 0,
+    };
+
+    res.status(200).json({ success: true, user: userResponse });
+  } catch (error) {
+    console.log("Error in checkAuth ", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 export const verifyEmail = async (req, res) => {
-	const { code } = req.body;
-	try {
-		const user = await User.findOne({
-			verificationToken: code,
-			verificationTokenExpiresAt: { $gt: Date.now() },
-		});
+  const { code } = req.body;
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        verificationToken: code,
+        verificationTokenExpiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
 
-		if (!user) {
-			return res.status(400).json({ success: false, message: "Invalid or expired verification code" });
-		}
+    if (!user) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Invalid or expired verification code",
+        });
+    }
 
-		user.isVerified = true;
-		user.verificationToken = undefined;
-		user.verificationTokenExpiresAt = undefined;
-		await user.save();
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        verificationToken: null,
+        verificationTokenExpiresAt: null,
+      },
+    });
 
-		res.status(200).json({
-			success: true,
-			message: "Email verified successfully",
-			user: {
-				...user._doc,
-				password: undefined,
-			},
-		});
-	} catch (error) {
-		console.log("error in verifyEmail ", error);
-		res.status(500).json({ success: false, message: "Server error" });
-	}
+    const userResponse = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      isVerified: updatedUser.isVerified,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: userResponse,
+    });
+  } catch (error) {
+    console.log("error in verifyEmail ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 export const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+    });
+
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    const account = await Account.findOne({ userId: req.userId });
+    const account = await prisma.account.findUnique({
+      where: { userId: req.userId },
+    });
+
     if (!account) {
-      return res.status(404).json({ success: false, message: 'Account not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Account not found" });
     }
 
-    const userResponse = user.toObject();
-    userResponse.balance = account.balance;
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isVerified: user.isVerified,
+      phone: user.phone,
+      gender: user.gender,
+      bio: user.bio,
+      avatar: user.avatar,
+      country: user.country,
+      city: user.city,
+      postalcode: user.postalcode,
+      taxid: user.taxid,
+      balance: parseFloat(account.balance),
+    };
 
     res.status(200).json({
       success: true,
       user: userResponse,
     });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("Server error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 export const getUserLogs = async (req, res) => {
   try {
     const userId = req.userId;
-    const userLogs = await userLog.find({ userId }).sort({ timestamp: -1 });
+    const userLogs = await prisma.userLog.findMany({
+      where: { userId },
+      orderBy: { timestamp: "desc" },
+    });
     res.status(200).json({ success: true, userLogs });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("Server error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -228,19 +326,38 @@ export const deleteUserLog = async (req, res) => {
   try {
     const userId = req.userId;
     const logId = req.params.id;
-    await userLog.findOneAndDelete({ _id: logId, userId });
-    res.status(200).json({ message: 'User log deleted successfully' });
+
+    await prisma.userLog.deleteMany({
+      where: {
+        id: logId,
+        userId,
+      },
+    });
+
+    res.status(200).json({ message: "User log deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 };
 
 export const getRecipentant = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        avatar: true,
+      },
+    });
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const userResponse = {
@@ -248,12 +365,12 @@ export const getRecipentant = async (req, res) => {
       lastName: user.lastName,
       email: user.email,
       avatar: user.avatar,
-      _id: user._id,
+      id: user.id,
     };
 
     res.status(200).json({ user: userResponse });
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    return res.status(401).json({ message: "Server Error" });
   }
 };
 
@@ -268,15 +385,15 @@ export const updateUser = async (req, res) => {
       country,
       city,
       postalcode,
-      taxid
+      taxid,
     } = req.body;
 
     const { success, error } = updateUserSchema.safeParse(req.body);
     if (!success) {
-      console.log('Validation errors:', error.flatten());
+      console.log("Validation errors:", error.flatten());
       return res.status(400).json({
-        message: 'Invalid Inputs',
-        errors: error.flatten()
+        message: "Invalid Inputs",
+        errors: error.flatten(),
       });
     }
 
@@ -291,50 +408,77 @@ export const updateUser = async (req, res) => {
     if (postalcode) updateFields.postalcode = postalcode;
     if (taxid) updateFields.taxid = taxid;
 
-    const existingUser = await User.findById(req.userId);
+    const existingUser = await prisma.user.findUnique({
+      where: { id: req.userId },
+    });
+
     if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const isDefaultAvatar = existingUser.avatar?.includes('https://avatar.iran.liara.run/public/');
+    const isDefaultAvatar = existingUser.avatar?.includes(
+      "https://avatar.iran.liara.run/public/"
+    );
     if (!existingUser.avatar || isDefaultAvatar) {
-      if (gender === 'Male') {
+      if (gender === "Male") {
         updateFields.avatar = `https://avatar.iran.liara.run/public/boy`;
-      } else if (gender === 'Female') {
+      } else if (gender === "Female") {
         updateFields.avatar = `https://avatar.iran.liara.run/public/girl`;
       }
     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: req.userId },
-      { $set: updateFields },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User update failed' });
-    }
-
-    const userAgent = req.headers['user-agent'];
-    const detectedDevice = detector.detect(userAgent);
-
-    await userLog.create({
-      userId: req.userId,
-      activityType: 'Updated Profile',
-      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
-      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
-      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    const updatedUser = await prisma.user.update({
+      where: { id: req.userId },
+      data: updateFields,
     });
 
-    const { password: _, ...userResponse } = updatedUser.toObject();
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User update failed" });
+    }
 
-    res.status(200).json({ message: 'User updated successfully', user: userResponse });
+    const userAgent = req.headers["user-agent"];
+    const detectedDevice = detector.detect(userAgent);
+
+    await prisma.userLog.create({
+      data: {
+        userId: req.userId,
+        activityType: "Updated Profile",
+        os: detectedDevice.os ? detectedDevice.os.name : "Unknown OS",
+        browser: detectedDevice.client
+          ? detectedDevice.client.name
+          : "Unknown Browser",
+        device: detectedDevice.device
+          ? detectedDevice.device.type
+          : "Unknown Device",
+      },
+    });
+
+    const userResponse = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      isVerified: updatedUser.isVerified,
+      phone: updatedUser.phone,
+      gender: updatedUser.gender,
+      bio: updatedUser.bio,
+      avatar: updatedUser.avatar,
+      country: updatedUser.country,
+      city: updatedUser.city,
+      postalcode: updatedUser.postalcode,
+      taxid: updatedUser.taxid,
+    };
+
+    res
+      .status(200)
+      .json({ message: "User updated successfully", user: userResponse });
   } catch (error) {
-    console.error('Error updating user:', error);
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    console.error("Error updating user:", error);
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
-
 
 export const changeAvatar = async (req, res) => {
   try {
@@ -347,7 +491,7 @@ export const changeAvatar = async (req, res) => {
       });
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
     if (!allowedTypes.includes(file.mimetype)) {
       return res.status(400).json({
         success: false,
@@ -356,15 +500,14 @@ export const changeAvatar = async (req, res) => {
     }
 
     const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'payzoid/avatars',
-        resource_type: 'image',
+      folder: "payzoid/avatars",
+      resource_type: "image",
     });
 
-    const user = await User.findOneAndUpdate(
-      { _id: req.userId },
-      { avatar: result.secure_url },
-      { new: true }
-    );
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: { avatar: result.secure_url },
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -373,15 +516,21 @@ export const changeAvatar = async (req, res) => {
       });
     }
 
-    const userAgent = req.headers['user-agent'];
+    const userAgent = req.headers["user-agent"];
     const detectedDevice = detector.detect(userAgent);
 
-    await userLog.create({
-      userId: req.userId,
-      activityType: 'Avatar Change',
-      os: detectedDevice.os ? detectedDevice.os.name : 'Unknown OS',
-      browser: detectedDevice.client ? detectedDevice.client.name : 'Unknown Browser',
-      device: detectedDevice.device ? detectedDevice.device.type : 'Unknown Device',
+    await prisma.userLog.create({
+      data: {
+        userId: req.userId,
+        activityType: "Avatar Change",
+        os: detectedDevice.os ? detectedDevice.os.name : "Unknown OS",
+        browser: detectedDevice.client
+          ? detectedDevice.client.name
+          : "Unknown Browser",
+        device: detectedDevice.device
+          ? detectedDevice.device.type
+          : "Unknown Device",
+      },
     });
 
     return res.status(200).json({
@@ -402,26 +551,38 @@ export const changeAvatar = async (req, res) => {
 
 export const filterUsers = async (req, res) => {
   try {
-    const filter = req.query.filter || '';
-    const regexFilter = new RegExp(filter, 'i');
-    const users = await User.find({
-      $or: [
-        {
-          firstName: {
-            $regex: regexFilter,
+    const filter = req.query.filter || "";
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: filter,
+              mode: "insensitive",
+            },
           },
-        },
-        {
-          lastName: {
-            $regex: regexFilter,
+          {
+            lastName: {
+              contains: filter,
+              mode: "insensitive",
+            },
           },
-        },
-        {
-          email: {
-            $regex: regexFilter,
+          {
+            email: {
+              contains: filter,
+              mode: "insensitive",
+            },
           },
-        },
-      ],
+        ],
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        avatar: true,
+      },
     });
 
     res.json({
@@ -429,46 +590,54 @@ export const filterUsers = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        _id: user._id,
+        id: user.id,
         avatar: user.avatar,
       })),
     });
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    return res.status(401).json({ message: "Server Error" });
   }
 };
 
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.userId;
-    const notifications = await Notification.find({ userId }).sort({ timestamp: -1 });
+    const notifications = await prisma.notification.findMany({
+      where: { userId },
+      orderBy: { timestamp: "desc" },
+    });
     res.status(200).json({
       success: true,
-      notifications
+      notifications,
     });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("Server error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 export const deleteAllNotifications = async (req, res) => {
   try {
     const userId = req.userId;
-    await Notification.deleteMany({ userId });
-    res.status(200).json({ message: 'Cleared all notifications deleted successfully' });
+    await prisma.notification.deleteMany({
+      where: { userId },
+    });
+    res
+      .status(200)
+      .json({ message: "Cleared all notifications deleted successfully" });
   } catch (error) {
-    console.error('Server error:', error);
-    return res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("Server error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 export const deleteUser = async (req, res) => {
   try {
-    await User.findOneAndDelete({ _id: req.userId });
-    await Account.findOneAndDelete({ userId: req.userId });
-    res.status(200).json({ message: 'User deleted Successfully' });
+    await prisma.user.delete({
+      where: { id: req.userId },
+    });
+    res.status(200).json({ message: "User deleted Successfully" });
   } catch (error) {
-    return res.status(401).json({ message: 'Server Error' });
+    return res.status(401).json({ message: "Server Error" });
   }
 };

@@ -65,7 +65,7 @@ const EmailVerificationPage = () => {
         navigate("/dashboard");
       }, 2000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error verifying email");
+      toast.error(error.message || "Error verifying email");
     }
   };
 

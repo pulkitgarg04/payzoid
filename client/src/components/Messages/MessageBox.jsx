@@ -41,9 +41,9 @@ function MessageBox({ selectedUser, currentUserID }) {
             if (selectedUser) {
                 try {
                     const response = await axios.get(
-                        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${currentUserID}/${selectedUser._id}`
+                        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${currentUserID}/${selectedUser.id}`
                     );
-                    setMessages(response.data.messages);
+                    setMessages(response.data.data);
                 } catch (error) {
                     console.error("Failed to fetch messages", error);
                 }
@@ -57,8 +57,7 @@ function MessageBox({ selectedUser, currentUserID }) {
         if (newMessage.trim()) {
             try {
                 const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`, {
-                    senderId: currentUserID,
-                    recipientId: selectedUser._id,
+                    recipientId: selectedUser.id,
                     text: newMessage,
                 });
 
