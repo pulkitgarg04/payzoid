@@ -39,7 +39,7 @@ function User({ user }) {
       <div className="w-40 flex justify-center items-center text-sm">
         <ButtonComponent
           onClick={() => {
-            navigate("/dashboard/send/" + user._id);
+            navigate("/dashboard/send/" + user.id);
           }}
           text={"Send Money"}
         />
@@ -56,7 +56,7 @@ function Users({ currentUserID }) {
     const fetchUsers = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/bulk?filter=${filter}`);
-        const filteredUsers = response.data.user.filter(user => user._id !== currentUserID).sort((a, b) => a.firstName.localeCompare(b.firstName));
+        const filteredUsers = response.data.user.filter(user => user.id !== currentUserID).sort((a, b) => a.firstName.localeCompare(b.firstName));
         setUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users", error);
@@ -76,7 +76,7 @@ function Users({ currentUserID }) {
       />
       <div>
         {users.map((user) => (
-          <User key={user._id} user={user} />
+          <User key={user.id} user={user} />
         ))}
       </div>
     </div>

@@ -6,7 +6,6 @@ import {
   // forgotPassword,
   // resetPassword,
   checkAuth,
-
   getUser,
   getUserLogs,
   filterUsers,
@@ -15,9 +14,8 @@ import {
   getNotifications,
   deleteAllNotifications,
   deleteUserLog,
-  changeAvatar
+  changeAvatar,
 } from '../controllers/user.controller.js';
-
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import upload from '../middlewares/multer.middleware.js';
 
@@ -28,7 +26,7 @@ router.get('/check-auth', authMiddleware, checkAuth);
 router.post('/signup', signup);
 router.post('/login', login);
 
-router.post("/verify-email", verifyEmail);
+router.post('/verify-email', verifyEmail);
 // router.post("/forgot-password", forgotPassword);
 // router.post("/reset-password/:token", resetPassword);
 

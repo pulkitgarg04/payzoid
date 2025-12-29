@@ -58,7 +58,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      toast.error(error.response?.data?.message || "Login failed. Please try again.");
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
+import prisma from './utils/prisma.js';
 
 import userRouter from './routes/user.js';
 import accountRouter from './routes/account.js';
@@ -11,7 +11,7 @@ import messageRouter from './routes/message.js';
 
 const app = express();
 
-console.log(process.env.FRONTEND_URL)
+console.log("Frontend: " + process.env.FRONTEND_URL)
 app.use(cors({
     origin: `${process.env.FRONTEND_URL || '*'}`,
     credentials: true
@@ -22,15 +22,15 @@ app.use(express.urlencoded({ extended: true }));
 
 const startServer = async () => {
   try {
-    mongoose.connect(`${process.env.MONGO_URI}`)
-      .then(() => {
-        console.log('db connected');
-        app.listen(process.env.PORT || 8080, () => {
-          console.log(`Server is running on port ${process.env.PORT}`);
-        });
+    await prisma.$connect();
+    console.log('PostgreSQL database connected');
+    
+    app.listen(process.env.PORT || 8080, () => {
+      console.log(`Server is running on port ${process.env.PORT || 8080}`);
     });
   } catch (error) {
-    console.log("Error while connecting to Mongo DB: ", error.message);
+    console.log("Error while connecting to PostgreSQL: ", error.message);
+    process.exit(1);
   }
 };
 
@@ -43,3 +43,8 @@ app.get('/', (req, res) => {
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/account', accountRouter);
 app.use('/api/v1/messages', messageRouter);
+
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
