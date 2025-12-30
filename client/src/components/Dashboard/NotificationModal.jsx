@@ -28,7 +28,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
         return;
       }
       const response = await fetch(`${API_URL}/deleteAllNotifications`, {
-        method: 'GET',
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -61,6 +61,14 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           if (response.ok) {
             const data = await response.json();
             setNotifications(data.notifications);
+            
+            await fetch(`${API_URL}/markNotificationsAsRead`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+              },
+            });
           } else {
             console.error("Failed to fetch notifications:", response.status);
           }
@@ -121,7 +129,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                       </h3>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatNotificationDate(notification.timestamp)}
+                      {formatNotificationDate(notification.timestamp || notification.createdAt)}
                     </p>
                   </div>
                   <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{notification.message}</p>

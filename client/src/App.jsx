@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 
 import { useAuthStore } from "./store/authStore.js";
+import { useThemeStore } from "./store/themeStore.js";
 import Loading from "./components/Loading.jsx";
 import Messages from "./pages/Dashboard/Messages.jsx";
 import RequestMoney from "./pages/Dashboard/RequestMoney.jsx";
@@ -50,10 +51,12 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
 function App() {
   const { checkAuth } = useAuthStore();
+  const { initializeTheme } = useThemeStore();
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    initializeTheme();
+  }, [checkAuth, initializeTheme]);
 
   return (
     <BrowserRouter>

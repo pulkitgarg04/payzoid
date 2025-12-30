@@ -34,7 +34,7 @@ function Signup() {
   const [passwordShown, setPasswordShown] = useState(false);
 
   const navigate = useNavigate();
-  const { error, signup, isAuthenticated, isLoading } = useAuthStore();
+  const { error, signup, isLoading } = useAuthStore();
 
   const togglePasswordVisibility = () => {
     setPasswordShown((prev) => !prev);

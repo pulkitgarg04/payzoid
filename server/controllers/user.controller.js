@@ -240,6 +240,8 @@ export const verifyEmail = async (req, res) => {
       },
     });
 
+    const token = jwt.sign({ userId: updatedUser.id }, process.env.JWT_SECRET);
+
     const userResponse = {
       id: updatedUser.id,
       email: updatedUser.email,
@@ -252,6 +254,7 @@ export const verifyEmail = async (req, res) => {
       success: true,
       message: "Email verified successfully",
       user: userResponse,
+      token,
     });
   } catch (error) {
     console.log("error in verifyEmail ", error);
@@ -625,6 +628,20 @@ export const deleteAllNotifications = async (req, res) => {
     res
       .status(200)
       .json({ message: "Cleared all notifications deleted successfully" });
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const markNotificationsAsRead = async (req, res) => {
+  try {
+    const userId = req.userId;
+    await prisma.notification.updateMany({
+      where: { userId, isRead: false },
+      data: { isRead: true },
+    });
+    res.status(200).json({ success: true, message: "Notifications marked as read" });
   } catch (error) {
     console.error("Server error:", error);
     return res.status(500).json({ success: false, message: "Server Error" });

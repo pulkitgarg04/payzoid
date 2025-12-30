@@ -48,7 +48,7 @@ function TransactionTable({ transactions }) {
                     <div className="p-3">
                         <div className="overflow-x-auto">
                             {sortedTransactions.length > 0 ? (
-                                <table className="table-auto w-full table-fixed">
+                                <table className="w-full table-fixed">
                                     <thead className="text-xs font-semibold uppercase text-gray-400 bg-gray-50 dark:bg-gray-800 dark:text-gray-300">
                                         <tr>
                                             <th className="p-2">

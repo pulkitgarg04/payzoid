@@ -4,11 +4,11 @@ import axios from 'axios'
 function User({ user, onClick }) {
     return (
         <div onClick={() => onClick(user)} className="flex items-center mb-4 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-md dark:hover:bg-gray-800">
-            <div className="w-10 h-10 bg-gray-300 rounded-full mr-3">
+            <div className="w-10 h-10 rounded-full mr-3 overflow-hidden flex-shrink-0">
                 <img
-                    className='rounded-full object-contain'
-                    src={user.avatar || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=random&color=fff`}
-                    alt="avatar"
+                    className='w-full h-full rounded-full object-cover'
+                    src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName + ' ' + user.lastName)}&background=random&size=128`}
+                    alt={`${user.firstName} ${user.lastName}`}
                 />
             </div>
             <div className="flex-1">

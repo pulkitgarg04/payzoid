@@ -3,16 +3,17 @@ import axios from 'axios';
 import ThemeToggle from '../../components/ThemeToggle';
 import { Link } from 'react-router-dom';
 import { IoSend } from "react-icons/io5";
+import { useAuthStore } from '../../store/authStore';
 
-function Message({ isSender, text, avatarSrc, firstName }) {
+function Message({ isSender, text, avatarSrc, senderName }) {
     return (
         <div className={`flex mb-4 cursor-pointer ${isSender ? 'justify-end' : ''}`}>
             {!isSender && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden flex-shrink-0">
                     <img
-                        src={avatarSrc || `https://avatar.iran.liara.run/username?username=${firstName}`}
+                        src={avatarSrc || `https://ui-avatars.com/api/?name=${encodeURIComponent(senderName)}&background=random&size=64`}
                         alt="User Avatar"
-                        className="w-8 h-8 rounded-full"
+                        className="w-full h-full rounded-full object-cover"
                     />
                 </div>
             )}
@@ -20,11 +21,11 @@ function Message({ isSender, text, avatarSrc, firstName }) {
                 <p>{text}</p>
             </div>
             {isSender && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center ml-2">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center ml-2 overflow-hidden flex-shrink-0">
                     <img
-                        src={avatarSrc || `https://avatar.iran.liara.run/username?username=${firstName}`}
+                        src={avatarSrc || `https://ui-avatars.com/api/?name=${encodeURIComponent(senderName)}&background=random&size=64`}
                         alt="My Avatar"
-                        className="w-8 h-8 rounded-full"
+                        className="w-full h-full rounded-full object-cover"
                     />
                 </div>
             )}
@@ -33,6 +34,7 @@ function Message({ isSender, text, avatarSrc, firstName }) {
 }
 
 function MessageBox({ selectedUser, currentUserID }) {
+    const { user: currentUser } = useAuthStore();
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
 
@@ -75,7 +77,9 @@ function MessageBox({ selectedUser, currentUserID }) {
         <div className="flex flex-col h-screen bg-white dark:bg-gray-900 dark:text-gray-100">
             <header className="bg-white dark:bg-gray-800 p-4 text-gray-700 dark:text-gray-200 flex justify-between">
                 <div className='flex justify-center items-center'>
-                    <img className="w-9 h-9 rounded-full self-center" src={selectedUser.avatar || `https://avatar.iran.liara.run/username?username=${selectedUser.firstName}`} alt="avatar" />
+                    <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+                        <img className="w-full h-full object-cover" src={selectedUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.firstName + ' ' + selectedUser.lastName)}&background=random&size=64`} alt="avatar" />
+                    </div>
                     <h1 className="ml-5 text-2xl font-semibold">{`${selectedUser.firstName} ${selectedUser.lastName}`}</h1>
                 </div>
                 <ThemeToggle />
@@ -87,10 +91,14 @@ function MessageBox({ selectedUser, currentUserID }) {
                         key={index}
                         isSender={msg.senderId === currentUserID}
                         text={msg.text}
-                        firstName={selectedUser.firstName}
+                        senderName={
+                            msg.senderId === currentUserID
+                                ? `${currentUser.firstName} ${currentUser.lastName}`
+                                : `${selectedUser.firstName} ${selectedUser.lastName}`
+                        }
                         avatarSrc={
                             msg.senderId === currentUserID
-                                ? 'https://avatar.iran.liara.run/public/boy'
+                                ? currentUser.avatar
                                 : selectedUser.avatar
                         }
                     />

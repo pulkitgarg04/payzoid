@@ -33,7 +33,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { user, login, isAuthenticated } = useAuthStore();
+  const { login } = useAuthStore();
 
   const togglePasswordVisibility = () => {
     setPasswordShown((prev) => !prev);

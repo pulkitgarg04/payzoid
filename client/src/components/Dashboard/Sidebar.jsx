@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 import { FaHome, FaBitcoin } from "react-icons/fa";
 import { AiOutlineTransaction, AiOutlineMessage } from 'react-icons/ai';
-import { PiHandWithdrawFill } from 'react-icons/pi';
 import { IoIosNotificationsOutline, IoMdSettings, IoIosLogOut } from 'react-icons/io';
 import { TbLogs } from 'react-icons/tb';
 import { CgProfile } from 'react-icons/cg';
@@ -42,6 +41,8 @@ const SidebarSection = ({ title }) => (
 
 function Sidebar() {
     const { logout } = useAuthStore();
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const handleLogout = () => {
         toast.promise(
@@ -49,7 +50,7 @@ function Sidebar() {
                 try {
                     logout();
                     resolve('Logout successful!');
-                } catch (e) {
+                } catch {
                     reject(new Error('Error logging out'));
                 }
             }),
@@ -61,11 +62,37 @@ function Sidebar() {
         );
     };
 
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
     const toggleNotificationPanel = () => {
         setIsNotificationOpen((prev) => !prev);
+        if (!isNotificationOpen) {
+            setTimeout(() => setUnreadCount(0), 500);
+        }
     };
+
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/getNotifications`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const unread = data.notifications.filter(n => !n.isRead).length;
+                setUnreadCount(unread);
+            }
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-300">
@@ -80,7 +107,21 @@ function Sidebar() {
                         <SidebarItem to="/dashboard/transactions" icon={<AiOutlineTransaction />}>Transactions</SidebarItem>
                         <SidebarItem to="/dashboard/cryptocurrency" icon={<FaBitcoin />}>CryptoCurrency</SidebarItem>
                         <SidebarItem to="/dashboard/message" icon={<AiOutlineMessage />}>Messages</SidebarItem>
-                        <SidebarItem icon={<IoIosNotificationsOutline />} onClick={toggleNotificationPanel}>Notifications</SidebarItem>
+                        <SidebarItem 
+                            icon={
+                                <div className="relative">
+                                    <IoIosNotificationsOutline />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                            } 
+                            onClick={toggleNotificationPanel}
+                        >
+                            Notifications
+                        </SidebarItem>
                         <SidebarSection title="Settings" />
                         <SidebarItem to="/dashboard/profile" icon={<CgProfile />}>Profile</SidebarItem>
                         <SidebarItem to="/dashboard/account-logs" icon={<TbLogs />}>Account Logs</SidebarItem>

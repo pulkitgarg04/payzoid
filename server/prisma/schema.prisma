@@ -92,11 +92,13 @@ model Notification {
   title     String
   message   String
   type      String
+  isRead    Boolean  @default(false)
   timestamp DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([userId, isRead])
 }
 
 model UserLog {
@@ -112,4 +114,16 @@ model UserLog {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model IdempotencyKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  userId    String
+  response  Json
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
 }

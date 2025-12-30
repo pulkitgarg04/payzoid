@@ -82,8 +82,19 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(`${API_URL}/verify-email`, { code });
+      
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
+      
+      const userDataResponse = await axios.get(`${API_URL}/getUserData`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      
       set({
-        user: response.data.user,
+        user: userDataResponse.data.user,
         isAuthenticated: true,
         isLoading: false,
       });

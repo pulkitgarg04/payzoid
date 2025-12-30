@@ -13,6 +13,7 @@ import {
   updateUser,
   getNotifications,
   deleteAllNotifications,
+  markNotificationsAsRead,
   deleteUserLog,
   changeAvatar,
 } from '../controllers/user.controller.js';
@@ -35,8 +36,8 @@ router.get('/getRecipentant/:id', getRecipentant);
 
 router.get('/getUserLogs', authMiddleware, getUserLogs);
 router.get('/getNotifications', authMiddleware, getNotifications);
-
-router.get('/deleteAllNotifications', authMiddleware, deleteAllNotifications);
+router.delete('/deleteAllNotifications', authMiddleware, deleteAllNotifications);
+router.put('/markNotificationsAsRead', authMiddleware, markNotificationsAsRead);
 router.delete('/deleteUserLog/:id', authMiddleware, deleteUserLog);
 
 router.put('/update', authMiddleware, updateUser);
