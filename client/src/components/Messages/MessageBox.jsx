@@ -43,7 +43,12 @@ function MessageBox({ selectedUser, currentUserID }) {
             if (selectedUser) {
                 try {
                     const response = await axios.get(
-                        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${currentUserID}/${selectedUser.id}`
+                        `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages/${currentUserID}/${selectedUser.id}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                            },
+                        }
                     );
                     setMessages(response.data.data);
                 } catch (error) {
@@ -58,10 +63,18 @@ function MessageBox({ selectedUser, currentUserID }) {
     const handleSendMessage = async () => {
         if (newMessage.trim()) {
             try {
-                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`, {
-                    recipientId: selectedUser.id,
-                    text: newMessage,
-                });
+                const response = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/api/v1/messages`,
+                    {
+                        recipientId: selectedUser.id,
+                        text: newMessage,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    }
+                );
 
                 setMessages((prev) => [...prev, response.data.data]);
                 setNewMessage("");

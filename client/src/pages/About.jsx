@@ -40,7 +40,7 @@ const StyledTitleElement = styled(motion.h2)`
 `;
 
 const About = () => {
-    const words = ["ANYONE", "ANYWHERE", "ANYTIME"];
+    const words = ["TO ANYONE", "ANYWHERE", "ANYTIME"];
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
     useEffect(() => {
@@ -60,7 +60,7 @@ const About = () => {
                     <div className="flex items-center justify-center space-x-4">
                         <div className="flex flex-col mx-5">
                             <h2 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-center font-bold">
-                                SEND MONEY TO
+                                SEND MONEY
                             </h2>
                             <h2 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-center font-bold">
                                 <AnimatePresence mode="wait">
