@@ -99,12 +99,12 @@ function MessageBox({ selectedUser, currentUserID }) {
 
             <footer className="bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 p-4">
                 <div className="flex items-center">
-                    <Link to={`/dashboard/send/${selectedUser._id}`}>
+                    <Link to={`/dashboard/send/${selectedUser.id}`}>
                         <button className="py-2 px-4 text-sm font-medium rounded-lg border border-transparent bg-blue-200 text-blue-800 hover:bg-blue-300 focus:outline-none focus:bg-blue-300 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-300 dark:bg-blue-800/70 dark:hover:bg-blue-800/40 dark:focus:bg-blue-800/40">
                             Pay
                         </button>
                     </Link>
-                    <Link to={`/dashboard/request/${selectedUser._id}`}>
+                    <Link to={`/dashboard/request/${selectedUser.id}`}>
                         <button className="py-2 px-4 ml-2 text-sm font-medium rounded-lg border border-transparent bg-blue-200 text-blue-800 hover:bg-blue-300 focus:outline-none focus:bg-blue-300 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-300 dark:bg-blue-800/70 dark:hover:bg-blue-800/40 dark:focus:bg-blue-800/40">
                             Request
                         </button>

@@ -44,17 +44,17 @@ function Login() {
     setLoading(true);
 
     try {
-      const loginSuccess = await login(email, password);
+      await login(email, password);
   
-      if (loginSuccess && isAuthenticated) {
-        if (user?.isVerified) {
-          toast.dismiss();
-          toast.success("Signed in successfully! Redirecting...");
-          setTimeout(() => navigate("/dashboard"), 1500);
-        } else {
-          toast("Please verify your email!", { icon: '⚠️' });
-          setTimeout(() => navigate("/verify-email"), 1500);
-        }
+      const currentUser = useAuthStore.getState().user;
+      
+      if (currentUser?.isVerified) {
+        toast.dismiss();
+        toast.success("Signed in successfully! Redirecting...");
+        setTimeout(() => navigate("/dashboard"), 1500);
+      } else {
+        toast("Please verify your email!");
+        setTimeout(() => navigate("/verify-email"), 1500);
       }
     } catch (error) {
       console.error('Login failed:', error);

@@ -32,7 +32,7 @@ function AccountLogsTable({ logs, setLogs }) {
             });
 
             if (response.ok) {
-                setLogs(prevLogs => prevLogs.filter(log => log._id !== logId));
+                setLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
             } else {
                 console.error('Error removing log:', response.status);
             }
@@ -86,7 +86,7 @@ function AccountLogsTable({ logs, setLogs }) {
                                 </thead>
                                 <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-600">
                                     {sortedLogs.map((log) => (
-                                        <tr key={log._id}>
+                                        <tr key={log.id}>
                                             <td className="p-2 text-center">{new Date(log.timestamp).toLocaleString()}</td>
                                             <td className="p-2 text-center">{log.activityType}</td>
                                             <td className="p-2 text-center">{log.transactionId || '-'}</td>
@@ -95,7 +95,7 @@ function AccountLogsTable({ logs, setLogs }) {
                                             <td className="p-2 text-center">{log.device.charAt(0).toUpperCase() + log.device.slice(1) || 'N/A'}</td>
                                             {
                                                 log.activityType !== 'Signup' ? (
-                                                    <td className='p-2 flex justify-center cursor-pointer' onClick={() => handleRemoveLog(log._id)}>
+                                                    <td className='p-2 flex justify-center cursor-pointer' onClick={() => handleRemoveLog(log.id)}>
                                                         <MdOutlineDelete className='w-5 h-5' />
                                                     </td>
                                                 ) : null

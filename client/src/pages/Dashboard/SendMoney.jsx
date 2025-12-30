@@ -54,7 +54,7 @@ function SendMoney() {
             return;
         }
 
-        if (!recipient || !recipient._id) {
+        if (!recipient || !recipient.id) {
             toast.dismiss(loadingToastId);
             toast.error('Recipient not found.');
             return;
@@ -69,7 +69,7 @@ function SendMoney() {
                 },
                 body: JSON.stringify({
                     amount: parseFloat(amount),
-                    to: recipient._id,
+                    to: recipient.id,
                     note: note || '',
                 }),
             });

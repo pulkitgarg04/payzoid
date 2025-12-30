@@ -76,7 +76,7 @@ function TransactionTable({ transactions }) {
                                     </thead>
                                     <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-600">
                                         {sortedTransactions.map((transaction) => (
-                                            <tr key={transaction._id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <tr key={transaction.id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <td className="p-2 break-words text-center">
                                                     {new Date(transaction.date).toLocaleString()}
                                                 </td>

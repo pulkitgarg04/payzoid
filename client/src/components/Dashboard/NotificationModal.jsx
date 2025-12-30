@@ -110,7 +110,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
             {notifications.length ? (
               notifications.map((notification) => (
                 <div
-                  key={notification._id}
+                  key={notification.id}
                   className="mt-3 px-6 py-4 bg-white rounded-lg shadow w-full dark:bg-gray-800"
                 >
                   <div className="inline-flex items-center justify-between w-full">
